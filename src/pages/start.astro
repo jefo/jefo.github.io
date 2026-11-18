@@ -1,0 +1,80 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import { postHref } from "../lib/utils";
+
+const all = await getCollection("posts", ({ data }) => !data.draft);
+const bySlug = new Map(all.map((p) => [p.id, p]));
+
+const route = [
+  {
+    slug: "claude-md-recept",
+    title: "Соберите правила проекта",
+    text: "Один файл, семь секций. После него агент перестаёт спрашивать, как запускать тесты, и начинает соблюдать границы.",
+    meta: "рецепт · 7 мин",
+  },
+  {
+    slug: "context-budget",
+    title: "Научитесь упаковывать контекст",
+    text: "Что класть в окно, что выкидывать и почему «весь репозиторий» — худшая стратегия. Пять правил и раскладка бюджета.",
+    meta: "рецепт · 6 мин",
+  },
+  {
+    slug: "spec-driven",
+    title: "Пишите спеку до кода",
+    text: "Одна страница, которая закрывает зазор между «что я сказал» и «что я имел в виду». Шаблон, пример, метрики.",
+    meta: "гайд · 12 мин",
+  },
+  {
+    slug: "mcp-server-20-minut",
+    title: "Подключите свой инструмент",
+    text: "MCP-сервер на Node: список файлов, чтение заметок, подключение к клиенту. Двадцать минут до первого рабочего инструмента.",
+    meta: "гайд · 15 мин",
+  },
+  {
+    slug: "agent-40-shagov",
+    title: "Держите агента в форме",
+    text: "Почему длинные сессии деградируют и как короткие эпизоды + STATE.md спасают результат. Диагностика за две минуты.",
+    meta: "заметка · 8 мин",
+  },
+];
+---
+
+<BaseLayout
+  title="С чего начать"
+  description="Маршрут на пять шагов: правила проекта, контекст, спека, инструменты и гигиена агентских сессий."
+>
+  <header class="page-head">
+    <div class="wrap">
+      <h1 class="page-head__title">С чего начать</h1>
+      <p class="page-head__lead">
+        Пять материалов, чтобы собрать рабочий процесс. Читайте по порядку —
+        каждый следующий опирается на предыдущий.
+      </p>
+      <div class="page-head__meta">
+        <span><b>05</b> шагов</span>
+        <span><b>~48</b> минут</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="path">
+      {route.map((step, i) => {
+        const post = bySlug.get(step.slug);
+        return (
+          <a href={post ? postHref(post) : "#"} class="path-step group">
+            <span class="path-step__n">{String(i + 1).padStart(2, "0")}</span>
+            <span>
+              <span class="path-step__title block group-hover:text-[var(--accent-text)] transition-colors">
+                {step.title}
+              </span>
+              <span class="path-step__text block">{step.text}</span>
+            </span>
+            <span class="path-step__meta">{step.meta}</span>
+          </a>
+        );
+      })}
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,36 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PostRow from "../../components/PostRow.astro";
+import { getCollection } from "astro:content";
+import { allTags, plural, sortByDate } from "../../lib/utils";
+
+const posts = sortByDate(
+  await getCollection("posts", ({ data }) => !data.draft && data.type === "recipe"),
+);
+const tags = allTags(posts);
+---
+
+<BaseLayout
+  title="Рецепты"
+  description="Короткие проверенные приёмы для работы с ИИ: что скопировать, куда вставить и что пойдёт не так."
+>
+  <header class="page-head">
+    <div class="wrap">
+      <h1 class="page-head__title">Рецепты</h1>
+      <p class="page-head__lead">
+        Один приём — одна страница. Код, команды и грабли, чтобы повторить у себя и не
+        искать те же ошибки.
+      </p>
+      <div class="page-head__meta">
+        <span><b>{posts.length}</b> {plural(posts.length, ["материал", "материала", "материалов"])}</span>
+        <span><b>{tags.length}</b> {plural(tags.length, ["тема", "темы", "тем"])}</span>
+      </div>
+    </div>
+  </header>
+
+  <section class="wrap">
+    <div class="post-list">
+      {posts.map((post) => <PostRow post={post} />)}
+    </div>
+  </section>
+</BaseLayout>

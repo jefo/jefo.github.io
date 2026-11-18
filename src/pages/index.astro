@@ -1,0 +1,165 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PostRow from "../components/PostRow.astro";
+import Icon from "../components/Icon.astro";
+import { getCollection } from "astro:content";
+import { SITE } from "../config";
+import {
+  allTags,
+  formatDate,
+  postHref,
+  readingTime,
+  sortByDate,
+  tagColor,
+} from "../lib/utils";
+
+const posts = sortByDate(await getCollection("posts", ({ data }) => !data.draft));
+const allTopics = allTags(posts);
+const tags = allTopics.slice(0, 8);
+
+const counts = posts.reduce(
+  (acc, p) => ({ ...acc, [p.data.type]: (acc[p.data.type] ?? 0) + 1 }),
+  {} as Record<string, number>,
+);
+
+const excerptPost = posts.find((p) => p.id === "context-budget") ?? posts[0];
+const quotePost = posts.find((p) => p.id === "agent-40-shagov") ?? posts[0];
+const excerptMinutes = excerptPost.data.time ?? `${readingTime(excerptPost.body)} мин`;
+const updated = posts.reduce((latest, p) => {
+  const date = p.data.updated ?? p.data.date;
+  return date > latest ? date : latest;
+}, new Date(0));
+---
+
+<BaseLayout description={SITE.description}>
+  <section class="masthead">
+    <div class="wrap masthead__grid">
+      <div>
+        <h1 class="masthead__title">
+          Из шортса —<br />
+          в <span class="mark">стек</span>.
+        </h1>
+        <p class="masthead__lede">
+          Полевой журнал инженера, который пишет вместе с ИИ. Полные версии шортсов —
+          код, грабли, чек-листы.
+        </p>
+        <div class="masthead__foot">
+          <a href="/notes" class="text-link">Все записи <span>→</span></a>
+          <a href="/start" class="text-link">С чего начать</a>
+          <span class="masthead__date">обновлено {formatDate(updated)}</span>
+        </div>
+      </div>
+
+      <figure class="excerpt">
+        <figcaption class="excerpt__cap">
+          <span>листинг</span> из рецепта «Контекстное окно — это бюджет, а не склад»
+        </figcaption>
+        <div class="excerpt__code" role="img" aria-label="Фрагмент рецепта о контексте">
+          <div class="excerpt__line">
+            <span class="ln">01</span>
+            <code><span class="tok-muted"># Контекст задачи: экспорт CSV</span></code>
+          </div>
+          <div class="excerpt__line">
+            <span class="ln">02</span>
+            <code> </code>
+          </div>
+          <div class="excerpt__line">
+            <span class="ln">03</span>
+            <code><span class="tok-key">## Карта</span></code>
+          </div>
+          <div class="excerpt__line">
+            <span class="ln">04</span>
+            <code><span class="tok-muted">-</span> отчёты: <span class="tok-str">src/reports/*.ts</span></code>
+          </div>
+          <div class="excerpt__line">
+            <span class="ln">05</span>
+            <code><span class="tok-muted">-</span> схема БД: <span class="tok-str">src/db/schema.ts</span></code>
+          </div>
+          <div class="excerpt__line">
+            <span class="ln">06</span>
+            <code><span class="tok-muted">-</span> тесты: <span class="tok-str">рядом с модулем</span></code>
+          </div>
+        </div>
+        <div class="excerpt__foot">
+          <p class="excerpt__note">Режьте историю, а не правила.</p>
+          <a href={postHref(excerptPost)} class="excerpt__link">
+            читать рецепт · {excerptMinutes} →
+          </a>
+        </div>
+      </figure>
+    </div>
+  </section>
+
+  <div class="wrap journal">
+    <div class="journal__main">
+      <header class="entries__head">
+        <h2 class="entries__title">Записи</h2>
+        <span class="entries__count">{posts.length}</span>
+        <a href="/notes" class="entries__link">архив →</a>
+      </header>
+
+      <div class="entries">
+        {posts.slice(0, 3).map((post) => <PostRow post={post} />)}
+
+        <aside class="pullquote">
+          <p>«Длинная сессия даёт иллюзию прогресса: история растёт, а результат — нет».</p>
+          <cite>
+            из заметки —{" "}
+            <a href={postHref(quotePost)}>«Почему агент ломается на 40-м шаге»</a>
+          </cite>
+        </aside>
+
+        {posts.slice(3).map((post) => <PostRow post={post} />)}
+      </div>
+    </div>
+
+    <aside class="journal__rail">
+      <section class="rail__block">
+        <p class="rail__label">Автор</p>
+        <p class="rail__name">native/</p>
+        <p class="rail__text">
+          Инженер. Пишу код вместе с ИИ с 2023 года. Здесь — то, что не влезло в шортс.
+        </p>
+        <a href="/about" class="rail__link">об авторе →</a>
+      </section>
+
+      <section class="rail__block">
+        <p class="rail__label">Разделы</p>
+        <ul class="rail__list">
+          <li>
+            <a href="/recipes">рецепты <span>{String(counts.recipe ?? 0).padStart(2, "0")}</span></a>
+          </li>
+          <li>
+            <a href="/guides">гайды <span>{String(counts.guide ?? 0).padStart(2, "0")}</span></a>
+          </li>
+          <li>
+            <a href="/notes?type=note">заметки <span>{String(counts.note ?? 0).padStart(2, "0")}</span></a>
+          </li>
+          <li>
+            <a href="/tags">все темы <span>{String(allTopics.length).padStart(2, "0")}</span></a>
+          </li>
+        </ul>
+      </section>
+
+      <section class="rail__block">
+        <p class="rail__label">Темы</p>
+        <div class="rail__tags">
+          {tags.map(({ tag }) => (
+            <a href={`/tags/${tag}`} style={`--tag-color: ${tagColor(tag)};`}>{tag}</a>
+          ))}
+        </div>
+      </section>
+
+      <section class="rail__block">
+        <p class="rail__label">Подписка</p>
+        <p class="rail__text">Новые записи — в RSS и Telegram.</p>
+        <div class="rail__sub">
+          <a href="/rss.xml"><Icon name="rss" size={12} /> RSS</a>
+          <a href={SITE.socials.telegram} target="_blank" rel="noopener noreferrer">
+            <Icon name="telegram" size={12} /> Telegram
+          </a>
+        </div>
+      </section>
+    </aside>
+  </div>
+</BaseLayout>

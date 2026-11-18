@@ -1,0 +1,206 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { allTags, plural, tagColor } from "../lib/utils";
+import { getCollection } from "astro:content";
+import { sortByDate } from "../lib/utils";
+
+const posts = sortByDate(await getCollection("posts", ({ data }) => !data.draft));
+const tags = allTags(posts).slice(0, 8);
+---
+
+<BaseLayout
+  title="Поиск"
+  description="Поиск по рецептам, гайдам и заметкам: по заголовкам, тегам и тексту."
+>
+  <header class="page-head">
+    <div class="wrap">
+      <h1 class="page-head__title">Поиск</h1>
+      <p class="page-head__lead">
+        По заголовкам, описаниям, тегам и тексту материалов.
+      </p>
+    </div>
+  </header>
+
+  <div class="wrap section !pt-8">
+    <div class="max-w-[720px]">
+      <div class="search-box">
+        <span class="text-[var(--muted)]" aria-hidden="true">⌕</span>
+        <input
+          id="search-input"
+          type="search"
+          placeholder="контекст, mcp, spec-driven…"
+          autocomplete="off"
+          spellcheck="false"
+          aria-label="Поисковый запрос"
+        />
+        <span class="search-box__kbd" aria-hidden="true">/</span>
+      </div>
+
+      <p class="search-status" id="search-status">
+        {posts.length} {plural(posts.length, ["материал", "материала", "материалов"])}
+      </p>
+      <div class="search-results" id="search-results"></div>
+
+      <div class="mt-10">
+        <p class="label mb-3">Темы</p>
+        <div class="tag-cloud">
+          {tags.map(({ tag }) => (
+            <a href={`/tags/${tag}`} class="tag" style={`--tag-color: ${tagColor(tag)};`}>{tag}</a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  type Entry = {
+    title: string;
+    description: string;
+    url: string;
+    type: string;
+    tags: string[];
+    date: string;
+    minutes: string;
+    body: string;
+  };
+
+  const input = document.getElementById("search-input") as HTMLInputElement | null;
+  const results = document.getElementById("search-results");
+  const status = document.getElementById("search-status");
+  let index: Entry[] = [];
+
+  function plural(n: number, forms: [string, string, string]) {
+    const mod10 = n % 10;
+    const mod100 = n % 100;
+    if (mod10 === 1 && mod100 !== 11) return forms[0];
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return forms[1];
+    return forms[2];
+  }
+
+  const escapeHtml = (s: string) =>
+    s.replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] ?? c,
+    );
+
+  const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  function highlight(text: string, terms: string[]) {
+    let out = escapeHtml(text);
+    for (const term of terms) {
+      if (term.length < 2) continue;
+      out = out.replace(new RegExp(`(${escapeRegExp(escapeHtml(term))})`, "gi"), "<mark>$1</mark>");
+    }
+    return out;
+  }
+
+  function search(query: string) {
+    const terms = query
+      .toLowerCase()
+      .split(/\s+/)
+      .map((t) => t.trim())
+      .filter(Boolean);
+
+    if (!terms.length) {
+      if (status)
+        status.textContent = `${index.length} ${plural(index.length, ["материал", "материала", "материалов"])}`;
+      if (results) results.innerHTML = "";
+      return;
+    }
+
+    const scored = index
+      .map((entry) => {
+        const title = entry.title.toLowerCase();
+        const desc = entry.description.toLowerCase();
+        const tags = entry.tags.join(" ").toLowerCase();
+        const body = entry.body.toLowerCase();
+        let score = 0;
+        let matchedAll = 0;
+
+        for (const term of terms) {
+          let hit = 0;
+          if (title.includes(term)) hit += 8;
+          if (tags.includes(term)) hit += 5;
+          if (desc.includes(term)) hit += 3;
+          if (body.includes(term)) hit += 1;
+          if (hit > 0) matchedAll++;
+          score += hit;
+        }
+
+        return { entry, score, matchedAll };
+      })
+      .filter((r) => r.matchedAll > 0)
+      .sort((a, b) => b.matchedAll - a.matchedAll || b.score - a.score)
+      .slice(0, 15);
+
+    if (status) {
+      status.textContent = scored.length
+        ? `найдено ${scored.length} ${plural(scored.length, ["материал", "материала", "материалов"])}`
+        : "ничего не найдено";
+    }
+
+    if (!results) return;
+    results.innerHTML = scored
+      .map(({ entry }) => {
+        const date = new Date(entry.date)
+          .toLocaleDateString("ru-RU", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })
+          .replace(" г.", "");
+        return `<a class="search-hit" href="${entry.url}">
+          <h2>${highlight(entry.title, terms)}</h2>
+          <p>${highlight(entry.description, terms)}</p>
+          <span class="search-hit__meta">
+            <span>${escapeHtml(entry.type)}</span>
+            <span>·</span>
+            <span>${date}</span>
+            <span>·</span>
+            <span>${escapeHtml(entry.minutes)}</span>
+            ${entry.tags.slice(0, 3).map((t) => `<span>#${escapeHtml(t)}</span>`).join("")}
+          </span>
+        </a>`;
+      })
+      .join("");
+  }
+
+  fetch("/search-index.json")
+    .then((r) => r.json())
+    .then((data: Entry[]) => {
+      index = data;
+      const params = new URLSearchParams(location.search);
+      const q = params.get("q") ?? "";
+      if (input && q) input.value = q;
+      search(q);
+      if (!q) input?.focus({ preventScroll: true });
+    })
+    .catch(() => {
+      if (status) status.textContent = "не удалось загрузить индекс";
+    });
+
+  let timer = 0;
+  input?.addEventListener("input", () => {
+    window.clearTimeout(timer);
+    timer = window.setTimeout(() => {
+      const q = input.value;
+      const url = new URL(location.href);
+      if (q) url.searchParams.set("q", q);
+      else url.searchParams.delete("q");
+      history.replaceState(null, "", url);
+      search(q);
+    }, 120);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "/" && document.activeElement !== input) {
+      event.preventDefault();
+      input?.focus();
+    }
+    if (event.key === "Escape" && input && document.activeElement === input) {
+      input.value = "";
+      input.blur();
+      search("");
+    }
+  });
+</script>

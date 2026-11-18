@@ -1,0 +1,36 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PostRow from "../../components/PostRow.astro";
+import { getCollection } from "astro:content";
+import { allTags, plural, sortByDate } from "../../lib/utils";
+
+const posts = sortByDate(
+  await getCollection("posts", ({ data }) => !data.draft && data.type === "guide"),
+);
+const tags = allTags(posts);
+---
+
+<BaseLayout
+  title="Гайды"
+  description="Длинные разборы: процессы, архитектура и инструменты для ИИ-нативной разработки."
+>
+  <header class="page-head">
+    <div class="wrap">
+      <h1 class="page-head__title">Гайды</h1>
+      <p class="page-head__lead">
+        Сквозные процессы, архитектурные решения и разборы, которые не помещаются
+        в вертикальное видео. С примерами и критериями.
+      </p>
+      <div class="page-head__meta">
+        <span><b>{posts.length}</b> {plural(posts.length, ["материал", "материала", "материалов"])}</span>
+        <span><b>{tags.length}</b> {plural(tags.length, ["тема", "темы", "тем"])}</span>
+      </div>
+    </div>
+  </header>
+
+  <section class="wrap">
+    <div class="post-list">
+      {posts.map((post) => <PostRow post={post} />)}
+    </div>
+  </section>
+</BaseLayout>

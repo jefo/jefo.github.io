@@ -1,0 +1,27 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Icon from "../components/Icon.astro";
+---
+
+<BaseLayout title="404" description="Страница не найдена." noindex>
+  <div class="wrap section min-h-[58vh]">
+    <h1 class="page-head__title max-w-[14ch]">
+      Страница<br /><span class="thin">не</span> <span class="mark-text">найдена</span>.
+    </h1>
+    <div class="mt-8 max-w-[560px]">
+      <pre class="term__body border border-[var(--line)] bg-[var(--code-bg)] p-5"><code><span class="tok-muted">$</span> cat /page
+<span class="tok-var">cat: /page: No such file or directory</span>
+
+<span class="tok-muted">$</span> <span class="tok-fn">grep</span> -r "то, что вы искали" ./posts
+<span class="tok-num">0</span> matches
+
+<span class="tok-muted">$</span> <span class="tok-fn">suggest</span> --next
+→ <span class="tok-str">/recipes</span>
+→ <span class="tok-str">/start</span></code></pre>
+    </div>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a href="/" class="btn btn--primary">На главную <Icon name="arrowRight" size={16} /></a>
+      <a href="/search" class="btn">Поиск</a>
+    </div>
+  </div>
+</BaseLayout>

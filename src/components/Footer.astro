@@ -1,0 +1,82 @@
+---
+import { SITE } from "../config";
+import Icon from "./Icon.astro";
+
+const year = new Date().getFullYear();
+
+const sections = [
+  { href: "/recipes", label: "Рецепты" },
+  { href: "/guides", label: "Гайды" },
+  { href: "/notes", label: "Архив" },
+  { href: "/tags", label: "Темы" },
+];
+
+const more = [
+  { href: "/start", label: "С чего начать" },
+  { href: "/about", label: "Об авторе" },
+  { href: "/search", label: "Поиск" },
+];
+
+const socials = [
+  { href: SITE.socials.youtube, label: "YouTube", icon: "youtube" as const },
+  { href: SITE.socials.telegram, label: "Telegram", icon: "telegram" as const },
+  { href: SITE.socials.github, label: "GitHub", icon: "github" as const },
+  { href: "/rss.xml", label: "RSS", icon: "rss" as const },
+];
+---
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__grid">
+      <div>
+        <a href="/" class="brand" aria-label="На главную">
+          <span>{SITE.mark}</span><span class="brand__slash" aria-hidden="true"></span>
+        </a>
+        <p class="footer__note">
+          Полевой журнал инженера, который пишет вместе с ИИ. Полные версии шортсов —
+          с кодом и граблями.
+        </p>
+        <div class="mt-5 flex flex-wrap gap-2">
+          {socials.map((s) => (
+            <a
+              href={s.href}
+              class="icon-btn"
+              aria-label={s.label}
+              title={s.label}
+              target={s.href.startsWith("http") ? "_blank" : undefined}
+              rel={s.href.startsWith("http") ? "noopener noreferrer" : undefined}
+            >
+              <Icon name={s.icon} size={17} />
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <nav aria-label="Разделы">
+        <h2 class="footer__title">Разделы</h2>
+        <ul class="mt-4 grid gap-2.5">
+          {sections.map((item) => (
+            <li>
+              <a href={item.href} class="footer__link">{item.label}</a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <nav aria-label="Ещё">
+        <h2 class="footer__title">Ещё</h2>
+        <ul class="mt-4 grid gap-2.5">
+          {more.map((item) => (
+            <li>
+              <a href={item.href} class="footer__link">{item.label}</a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+
+    <div class="footer__bottom">
+      <p class="footer__copyright">© {year} native/</p>
+    </div>
+  </div>
+</footer>

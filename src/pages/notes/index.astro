@@ -1,0 +1,104 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PostRow from "../../components/PostRow.astro";
+import { getCollection } from "astro:content";
+import { groupByYear, plural, sortByDate } from "../../lib/utils";
+
+const posts = sortByDate(await getCollection("posts", ({ data }) => !data.draft));
+const years = groupByYear(posts);
+
+const filters = [
+  { key: "all", label: "всё" },
+  { key: "recipe", label: "рецепты" },
+  { key: "guide", label: "гайды" },
+  { key: "note", label: "заметки" },
+];
+---
+
+<BaseLayout
+  title="Архив"
+  description="Все материалы блога: рецепты, гайды и заметки. Фильтр по формату, поиск по темам."
+>
+  <header class="page-head">
+    <div class="wrap">
+      <h1 class="page-head__title">Архив</h1>
+      <p class="page-head__lead">
+        Всё, что вышло — от коротких рецептов до длинных разборов. Если не знаете,
+        с чего начать, — <a href="/start" class="underline decoration-[var(--accent-text)] underline-offset-4">маршрут на пять шагов</a>.
+      </p>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="filters" role="group" aria-label="Фильтр по формату">
+      {filters.map((f, i) => (
+        <button
+          class="filter"
+          type="button"
+          data-filter={f.key}
+          aria-pressed={i === 0 ? "true" : "false"}
+        >
+          {f.label}
+        </button>
+      ))}
+      <span class="mono ml-auto text-[10px] uppercase tracking-wider text-[var(--muted)]" id="filter-count">
+        {posts.length} {plural(posts.length, ["материал", "материала", "материалов"])}
+      </span>
+    </div>
+
+    <div id="archive">
+      {years.map(({ year, posts: yearPosts }) => (
+        <section data-year={String(year)}>
+          <div class="year-head"><span>{year}</span></div>
+          <div class="post-list">
+            {yearPosts.map((post) => <PostRow post={post} />)}
+          </div>
+        </section>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>("[data-filter]")];
+  const rows = [...document.querySelectorAll<HTMLElement>("#archive .entry")];
+  const sections = [...document.querySelectorAll<HTMLElement>("#archive section")];
+  const countEl = document.getElementById("filter-count");
+
+  function plural(n: number, forms: [string, string, string]) {
+    const mod10 = n % 10;
+    const mod100 = n % 100;
+    if (mod10 === 1 && mod100 !== 11) return forms[0];
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return forms[1];
+    return forms[2];
+  }
+
+  function apply(filter: string) {
+    buttons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.filter === filter)));
+
+    let visible = 0;
+    rows.forEach((row) => {
+      const show = filter === "all" || row.dataset.type === filter;
+      row.hidden = !show;
+      if (show) visible++;
+    });
+
+    sections.forEach((section) => {
+      const any = [...section.querySelectorAll<HTMLElement>(".entry")].some((r) => !r.hidden);
+      section.hidden = !any;
+    });
+
+    if (countEl) countEl.textContent = `${visible} ${plural(visible, ["материал", "материала", "материалов"])}`;
+    const url = new URL(location.href);
+    if (filter === "all") url.searchParams.delete("type");
+    else url.searchParams.set("type", filter);
+    history.replaceState(null, "", url);
+  }
+
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => apply(button.dataset.filter ?? "all"));
+  });
+
+  const initial = new URL(location.href).searchParams.get("type");
+  if (initial && ["recipe", "guide", "note"].includes(initial)) apply(initial);
+</script>

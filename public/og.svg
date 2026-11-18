@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+      <path d="M80 0H0V80" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="#1b1a17"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+
+  <g font-family="'DejaVu Sans Mono', monospace" fill="#8e897c" font-size="14" letter-spacing="2">
+    <text x="80" y="82">ПОЛЕВОЙ ЖУРНАЛ · native/</text>
+    <text x="1120" y="82" text-anchor="end">18.11.2026</text>
+  </g>
+
+  <g font-family="'DejaVu Serif', Georgia, serif" fill="#efece2">
+    <text x="78" y="258" font-size="86" letter-spacing="-3">Из шортса —</text>
+  </g>
+
+  <rect x="76" y="306" width="420" height="88" fill="#b9f34f"/>
+  <g font-family="'DejaVu Serif', Georgia, serif" fill="#171a14">
+    <text x="78" y="374" font-size="86" letter-spacing="-3">в стек.</text>
+  </g>
+
+  <g font-family="'DejaVu Serif', Georgia, serif" fill="#c9c4b8" font-size="22">
+    <text x="80" y="456">Код, грабли и чек-листы</text>
+    <text x="80" y="488">к полным версиям шортсов.</text>
+  </g>
+
+  <g font-family="'DejaVu Sans Mono', monospace" font-size="13" fill="#8e897c">
+    <text x="760" y="180">ЛИСТИНГ ИЗ РЕЦЕПТА</text>
+    <path d="M760 196H1120" stroke="#3b382f" stroke-width="1"/>
+    <text x="760" y="238" fill="#8e897c">01  # Контекст задачи</text>
+    <text x="760" y="270" fill="#8e897c">02</text>
+    <text x="760" y="302" fill="#c39bf5">03  ## Карта</text>
+    <text x="760" y="334" fill="#9ee57c">04  - отчёты: src/*.ts</text>
+    <text x="760" y="366" fill="#9ee57c">05  - схема: schema.ts</text>
+    <text x="760" y="398" fill="#9ee57c">06  - тесты: рядом</text>
+    <text x="760" y="450" fill="#efece2" font-style="italic" font-family="'DejaVu Serif', serif" font-size="17">Режьте историю, а не правила.</text>
+  </g>
+
+  <g font-family="'DejaVu Sans Mono', monospace" font-size="13" fill="#8e897c">
+    <path d="M80 548H1120" stroke="#3b382f" stroke-width="1"/>
+    <text x="80" y="582">native.blog</text>
+    <text x="1120" y="582" text-anchor="end">рецепты · гайды · заметки</text>
+  </g>
+</svg>

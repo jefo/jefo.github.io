@@ -1,0 +1,112 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Icon from "../components/Icon.astro";
+import { SITE } from "../config";
+
+const facts = [
+  { k: "Роль", v: "инженер / тимлид" },
+  { k: "Стек", v: "TypeScript, Node, Postgres" },
+];
+
+const links = [
+  { label: "YouTube", href: SITE.socials.youtube, icon: "youtube" as const },
+  { label: "Telegram", href: SITE.socials.telegram, icon: "telegram" as const },
+  { label: "GitHub", href: SITE.socials.github, icon: "github" as const },
+  { label: "X / Twitter", href: SITE.socials.x, icon: "x" as const },
+];
+---
+
+<BaseLayout
+  title="Об авторе"
+  description="Кто пишет native/ и зачем: про ИИ-нативную разработку с кодом и граблями."
+>
+  <header class="page-head">
+    <div class="wrap">
+      <h1 class="page-head__title">Привет.<br />Я автор native/.</h1>
+      <p class="page-head__lead">
+        Пишу код вместе с ИИ с 2023 года и всё это время веду заметки. Этот блог —
+        их публичная версия.
+      </p>
+    </div>
+  </header>
+
+  <div class="wrap about-grid">
+    <div class="prose">
+      <p>
+        По профессии я инженер. Большую часть времени провожу в терминале, читаю диффы
+        и разбираю, почему очередная «автономная команда агентов» развалилась
+        на третьем спринте.
+      </p>
+      <p>
+        Шортсы появились как способ фиксировать находки: один приём, который сэкономил мне
+        полчаса. В 40 секунд не влезают грабли, а именно их ищут, когда возвращаются
+        к видео через месяц.
+      </p>
+
+      <h2>Зачем блог</h2>
+      <p>
+        Здесь лежит полная версия каждого ролика: контекст, код, ограничения и чек-лист.
+        Страницы рассчитаны на возврат через месяц — без «как вы помните, в прошлом выпуске».
+      </p>
+      <p>
+        Это <strong>бортжурнал</strong>: что попробовал, что сработало, что сломалось.
+        С датами и обновлениями.
+      </p>
+
+      <h2>Как устроены материалы</h2>
+      <ul>
+        <li>В рецепте — код или команды, которые можно применить сразу.</li>
+        <li>В гайде — границы: где решение ломается.</li>
+        <li>В конце — чек-лист, а не «удачи».</li>
+      </ul>
+      <p>
+        Если нашли ошибку — напишите: исправлю и допишу в грабли.
+      </p>
+    </div>
+
+    <aside class="about-side">
+      <div class="about-card">
+        <div class="about-mark" aria-hidden="true">n<span>/</span></div>
+        <p class="label">Профиль</p>
+        <ul class="about-facts mt-3">
+          {facts.map((f) => (
+            <li><span>{f.k}</span><b class="font-normal text-[var(--ink)]">{f.v}</b></li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="about-card">
+        <p class="label mb-3">Связаться</p>
+        <ul class="grid gap-2.5">
+          {links.map((l) => (
+            <li>
+              <a
+                href={l.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="footer__link items-center"
+              >
+                <Icon name={l.icon} size={15} /> {l.label}
+              </a>
+            </li>
+          ))}
+          <li>
+            <a href={`mailto:${SITE.email}`} class="footer__link items-center">
+              <Icon name="link" size={15} /> {SITE.email}
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="about-card">
+        <p class="label mb-2">Подписка</p>
+        <p class="text-[13px] leading-relaxed text-[var(--ink-2)]">
+          Новые материалы — в RSS и Telegram.
+        </p>
+        <a href="/rss.xml" class="btn btn--ghost mt-3 w-full justify-start px-0">
+          <Icon name="rss" size={15} /> RSS
+        </a>
+      </div>
+    </aside>
+  </div>
+</BaseLayout>
