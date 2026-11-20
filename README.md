@@ -8,6 +8,8 @@
 список записей, маргинальная колонка журнала. Сделан под формат:
 **YouTube Shorts → полный рецепт в блоге → закладки**.
 
+**Live:** https://jefo.github.io/
+
 ---
 
 ## Быстрый старт
@@ -152,8 +154,8 @@ src/
 
 **Vercel / Netlify:** framework preset — Astro, build `npm run build`, output `dist`.
 
-**GitHub Pages:** добавьте `base` в `astro.config.mjs`, если сайт живёт в подпапке,
-и задеплойте `dist/` через Actions.
+**GitHub Pages:** репозиторий `jefo/jefo.github.io` деплоится через Actions
+(`.github/workflows/deploy.yml`). Пуш в `main` запускает сборку и публикацию.
 
 **Свой сервер:** `npm run build` и раздавайте `dist/` любым nginx/caddy.
 
