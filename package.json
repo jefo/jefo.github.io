@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "description": "native/ — блог AI-нативного инженера: рецепты, гайды и заметки.",
-  "author": "Имя Фамилия",
+  "author": "Евгений Кайзин",
   "engines": {
     "node": ">=22"
   },

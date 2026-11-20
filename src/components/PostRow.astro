@@ -6,15 +6,16 @@ import { TYPE_META } from "../config";
 interface Props {
   post: Post;
   compact?: boolean;
+  lead?: boolean;
 }
 
-const { post, compact = false } = Astro.props;
+const { post, compact = false, lead = false } = Astro.props;
 const meta = TYPE_META[post.data.type];
 const href = postHref(post);
 const minutes = post.data.time ?? `${readingTime(post.body)} мин`;
 ---
 
-<article class="entry" style={`--type-color: ${meta.color};`} data-type={post.data.type}>
+<article class:list={["entry", lead && "entry--lead"]} style={`--type-color: ${meta.color};`} data-type={post.data.type}>
   <time class="entry__date" datetime={isoDate(post.data.date)}>{shortDate(post.data.date)}</time>
   <div class="entry__body">
     <div class="entry__meta">

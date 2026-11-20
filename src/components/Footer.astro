@@ -1,5 +1,5 @@
 ---
-import { SITE } from "../config";
+import { SITE, isPlaceholderLink } from "../config";
 import Icon from "./Icon.astro";
 
 const year = new Date().getFullYear();
@@ -13,7 +13,7 @@ const sections = [
 
 const more = [
   { href: "/start", label: "С чего начать" },
-  { href: "/about", label: "Об авторе" },
+  { href: "/about", label: "О журнале" },
   { href: "/search", label: "Поиск" },
 ];
 
@@ -22,7 +22,7 @@ const socials = [
   { href: SITE.socials.telegram, label: "Telegram", icon: "telegram" as const },
   { href: SITE.socials.github, label: "GitHub", icon: "github" as const },
   { href: "/rss.xml", label: "RSS", icon: "rss" as const },
-];
+].filter((s) => !isPlaceholderLink(s.href));
 ---
 
 <footer class="footer">
@@ -33,8 +33,7 @@ const socials = [
           <span>{SITE.mark}</span><span class="brand__slash" aria-hidden="true"></span>
         </a>
         <p class="footer__note">
-          Полевой журнал инженера, который пишет вместе с ИИ. Полные версии шортсов —
-          с кодом и граблями.
+          Журнал об инженерии ПО в эпоху супер-интеллекта. Миссия — {SITE.mission}.
         </p>
         <div class="mt-5 flex flex-wrap gap-2">
           {socials.map((s) => (

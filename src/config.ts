@@ -3,11 +3,12 @@ export const SITE = {
   title: "native/",
   /** Часть после слэша в логотипе. */
   mark: "native",
-  tagline: "Полевой журнал ИИ-инженера",
+  tagline: "Полевой журнал об инженерии ПО",
   description:
-    "Рецепты, гайды и заметки для тех, кто строит софт вместе с ИИ: контекст, агенты, MCP, промпты и инструменты. Дополнение к шортсам — чтобы сохранять и возвращаться.",
-  url: "https://native.blog",
-  author: "native/",
+    "native/ — журнал об инженерии ПО в эпоху супер-интеллекта. Разбираем ИИ-инструменты, код и инженерное мышление. Миссия — повышение ИИ-грамотности.",
+  mission: "повышение ИИ-грамотности",
+  url: "https://jefo.github.io",
+  author: "Евгений Кайзин",
   handle: "@your_handle",
   email: "hi@native.blog",
   locale: "ru_RU",
@@ -16,7 +17,7 @@ export const SITE = {
   socials: {
     youtube: "https://www.youtube.com/@your_handle",
     telegram: "https://t.me/your_handle",
-    github: "https://github.com/your_handle",
+    github: "https://github.com/jefo",
     x: "https://x.com/your_handle",
   },
   /** Ссылка на обсуждение постов. */
@@ -28,7 +29,7 @@ export const NAV = [
   { href: "/guides", label: "Гайды", note: "разборы и процессы" },
   { href: "/notes", label: "Архив", note: "все материалы" },
   { href: "/start", label: "Старт", note: "маршрут на пять шагов" },
-  { href: "/about", label: "Автор", note: "кто это пишет" },
+  { href: "/about", label: "Журнал", note: "о журнале" },
 ];
 
 export const TYPE_META = {
@@ -62,3 +63,6 @@ export const LEVEL_META = {
   medium: { label: "средне", dots: 2 },
   hard: { label: "хардкор", dots: 3 },
 } as const;
+
+/** Ссылки-заглушки не показываем на опубликованном сайте. */
+export const isPlaceholderLink = (href: string) => href.includes("your_handle");

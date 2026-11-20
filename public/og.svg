@@ -40,7 +40,7 @@
 
   <g font-family="'DejaVu Sans Mono', monospace" font-size="13" fill="#8e897c">
     <path d="M80 548H1120" stroke="#3b382f" stroke-width="1"/>
-    <text x="80" y="582">native.blog</text>
+    <text x="80" y="582">jefo.github.io</text>
     <text x="1120" y="582" text-anchor="end">рецепты · гайды · заметки</text>
   </g>
 </svg>

@@ -1,10 +1,11 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Icon from "../components/Icon.astro";
-import { SITE } from "../config";
+import { SITE, isPlaceholderLink } from "../config";
 
 const facts = [
-  { k: "Роль", v: "инженер / тимлид" },
+  { k: "Роль", v: "full-stack-разработчик" },
+  { k: "Опыт", v: "15 лет" },
   { k: "Стек", v: "TypeScript, Node, Postgres" },
 ];
 
@@ -13,19 +14,23 @@ const links = [
   { label: "Telegram", href: SITE.socials.telegram, icon: "telegram" as const },
   { label: "GitHub", href: SITE.socials.github, icon: "github" as const },
   { label: "X / Twitter", href: SITE.socials.x, icon: "x" as const },
-];
+].filter((l) => !isPlaceholderLink(l.href));
+
+const emailConfigured = !SITE.email.includes("native.blog");
+
+const aboutDescription = `native/ — журнал об инженерии ПО в эпоху супер-интеллекта. Миссия — ${SITE.mission}. Автор — ${SITE.author}.`;
 ---
 
 <BaseLayout
-  title="Об авторе"
-  description="Кто пишет native/ и зачем: про ИИ-нативную разработку с кодом и граблями."
+  title="О журнале"
+  description={aboutDescription}
 >
   <header class="page-head">
     <div class="wrap">
-      <h1 class="page-head__title">Привет.<br />Я автор native/.</h1>
+      <h1 class="page-head__title">Инженерия<br />в эпоху супер-интеллекта.</h1>
       <p class="page-head__lead">
-        Пишу код вместе с ИИ с 2023 года и всё это время веду заметки. Этот блог —
-        их публичная версия.
+        native/ — независимый журнал о том, как строить софт вместе с ИИ. Миссия —
+        {SITE.mission}: для инженеров и для всех, кто хочет перенять инженерное мышление.
       </p>
     </div>
   </header>
@@ -33,24 +38,36 @@ const links = [
   <div class="wrap about-grid">
     <div class="prose">
       <p>
-        По профессии я инженер. Большую часть времени провожу в терминале, читаю диффы
-        и разбираю, почему очередная «автономная команда агентов» развалилась
-        на третьем спринте.
+        <strong>Миссия.</strong> ИИ-грамотность — это не умение писать промпты. Это
+        понимание, как устроены инструменты, где они ломаются и как проверить результат.
+        Журнал переводит это на язык практики.
       </p>
       <p>
-        Шортсы появились как способ фиксировать находки: один приём, который сэкономил мне
-        полчаса. В 40 секунд не влезают грабли, а именно их ищут, когда возвращаются
-        к видео через месяц.
+        native/ — журнал, а не личный дневник. Обложка принадлежит журналу, автор — его
+        голос.
       </p>
 
-      <h2>Зачем блог</h2>
+      <h2>Что здесь есть</h2>
       <p>
-        Здесь лежит полная версия каждого ролика: контекст, код, ограничения и чек-лист.
-        Страницы рассчитаны на возврат через месяц — без «как вы помните, в прошлом выпуске».
+        Полные версии шортсов: рецепты, гайды и заметки. С кодом, ограничениями
+        и чек-листами. Страницы рассчитаны на возврат через месяц — без «как вы помните,
+        в прошлом выпуске».
       </p>
       <p>
         Это <strong>бортжурнал</strong>: что попробовал, что сработало, что сломалось.
         С датами и обновлениями.
+      </p>
+
+      <h2>Кто делает</h2>
+      <p>
+        Автор журнала — <strong>{SITE.author}</strong>, full-stack-разработчик.
+        15 лет в деле — и не собирается останавливаться. Делает собственное ПО
+        и показывает процесс: как ИИ-инструменты меняют разработку, не заменяя
+        инженерное мышление.
+      </p>
+      <p>
+        YouTube-канал — об инженерии ПО в эпоху супер-интеллекта. Он не только для
+        инженеров: инженерное мышление можно перенять, даже если вы не пишете код.
       </p>
 
       <h2>Как устроены материалы</h2>
@@ -67,7 +84,8 @@ const links = [
     <aside class="about-side">
       <div class="about-card">
         <div class="about-mark" aria-hidden="true">n<span>/</span></div>
-        <p class="label">Профиль</p>
+        <p class="label">Автор журнала</p>
+        <p class="about-author-name">{SITE.author}</p>
         <ul class="about-facts mt-3">
           {facts.map((f) => (
             <li><span>{f.k}</span><b class="font-normal text-[var(--ink)]">{f.v}</b></li>
@@ -90,11 +108,13 @@ const links = [
               </a>
             </li>
           ))}
-          <li>
-            <a href={`mailto:${SITE.email}`} class="footer__link items-center">
-              <Icon name="link" size={15} /> {SITE.email}
-            </a>
-          </li>
+          {emailConfigured && (
+            <li>
+              <a href={`mailto:${SITE.email}`} class="footer__link items-center">
+                <Icon name="link" size={15} /> {SITE.email}
+              </a>
+            </li>
+          )}
         </ul>
       </div>
 

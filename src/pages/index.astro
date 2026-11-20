@@ -3,7 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import PostRow from "../components/PostRow.astro";
 import Icon from "../components/Icon.astro";
 import { getCollection } from "astro:content";
-import { SITE } from "../config";
+import { SITE, isPlaceholderLink } from "../config";
 import {
   allTags,
   formatDate,
@@ -40,8 +40,8 @@ const updated = posts.reduce((latest, p) => {
           в <span class="mark">стек</span>.
         </h1>
         <p class="masthead__lede">
-          Полевой журнал инженера, который пишет вместе с ИИ. Полные версии шортсов —
-          код, грабли, чек-листы.
+          Полевой журнал об инженерии ПО в эпоху супер-интеллекта. Повышаем
+          ИИ-грамотность — через инструменты, код и инженерное мышление.
         </p>
         <div class="masthead__foot">
           <a href="/notes" class="text-link">Все записи <span>→</span></a>
@@ -99,7 +99,8 @@ const updated = posts.reduce((latest, p) => {
       </header>
 
       <div class="entries">
-        {posts.slice(0, 3).map((post) => <PostRow post={post} />)}
+        <PostRow post={posts[0]} lead />
+        {posts.slice(1, 3).map((post) => <PostRow post={post} />)}
 
         <aside class="pullquote">
           <p>«Длинная сессия даёт иллюзию прогресса: история растёт, а результат — нет».</p>
@@ -115,12 +116,13 @@ const updated = posts.reduce((latest, p) => {
 
     <aside class="journal__rail">
       <section class="rail__block">
-        <p class="rail__label">Автор</p>
+        <p class="rail__label">Журнал</p>
         <p class="rail__name">native/</p>
         <p class="rail__text">
-          Инженер. Пишу код вместе с ИИ с 2023 года. Здесь — то, что не влезло в шортс.
+          Об инженерии ПО в эпоху супер-интеллекта. Миссия — {SITE.mission}.
         </p>
-        <a href="/about" class="rail__link">об авторе →</a>
+        <a href="/about" class="rail__link">о журнале →</a>
+        <p class="rail__byline">Автор — {SITE.author}</p>
       </section>
 
       <section class="rail__block">
@@ -155,9 +157,11 @@ const updated = posts.reduce((latest, p) => {
         <p class="rail__text">Новые записи — в RSS и Telegram.</p>
         <div class="rail__sub">
           <a href="/rss.xml"><Icon name="rss" size={12} /> RSS</a>
-          <a href={SITE.socials.telegram} target="_blank" rel="noopener noreferrer">
-            <Icon name="telegram" size={12} /> Telegram
-          </a>
+          {!isPlaceholderLink(SITE.socials.telegram) && (
+            <a href={SITE.socials.telegram} target="_blank" rel="noopener noreferrer">
+              <Icon name="telegram" size={12} /> Telegram
+            </a>
+          )}
         </div>
       </section>
     </aside>

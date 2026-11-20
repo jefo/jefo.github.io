@@ -3,7 +3,7 @@ import { getCollection, render } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostRow from "../../components/PostRow.astro";
 import Icon from "../../components/Icon.astro";
-import { LEVEL_META, SITE, TYPE_META } from "../../config";
+import { LEVEL_META, SITE, TYPE_META, isPlaceholderLink } from "../../config";
 import {
   formatDate,
   postHref,
@@ -68,6 +68,8 @@ const jsonLd = {
         <div class="post-meta">
           <span class="post-type" style={`--type-color: ${meta.color};`}>{meta.label}</span>
           <span class="post-meta__dot" aria-hidden="true"></span>
+          <span class="post-author">текст: {SITE.author}</span>
+          <span class="post-meta__dot" aria-hidden="true"></span>
           <span>{formatDate(post.data.date)}</span>
           <span class="post-meta__dot" aria-hidden="true"></span>
           <span>{minutes} чтения</span>
@@ -108,6 +110,17 @@ const jsonLd = {
 
     <div class="wrap post-grid-layout">
       <div>
+        {toc.length > 1 && (
+          <details class="toc-mobile">
+            <summary>Содержание</summary>
+            <ol>
+              {toc.map((h) => (
+                <li><a href={`#${h.slug}`}>{h.text}</a></li>
+              ))}
+            </ol>
+          </details>
+        )}
+
         {post.data.youtube && (
           <a
             href={post.data.youtube}
@@ -135,9 +148,11 @@ const jsonLd = {
             <button class="btn btn--ghost" type="button" data-copy-link>
               <Icon name="link" size={15} /> Скопировать ссылку
             </button>
-            <a href={SITE.chat} class="btn btn--ghost" target="_blank" rel="noopener noreferrer">
-              <Icon name="telegram" size={15} /> Обсудить
-            </a>
+            {!isPlaceholderLink(SITE.chat) && (
+              <a href={SITE.chat} class="btn btn--ghost" target="_blank" rel="noopener noreferrer">
+                <Icon name="telegram" size={15} /> Обсудить
+              </a>
+            )}
           </div>
 
           <div class="pagination">
