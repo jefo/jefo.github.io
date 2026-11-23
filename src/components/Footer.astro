@@ -5,6 +5,13 @@ import Icon from "./Icon.astro";
 const year = new Date().getFullYear();
 
 const sections = [
+  { href: "/catalog", label: "Каталог концептов" },
+  { href: "/paths", label: "Маршруты" },
+  { href: "/atlas", label: "Атлас связей" },
+  { href: "/glossary", label: "Словарь" },
+];
+
+const formats = [
   { href: "/recipes", label: "Рецепты" },
   { href: "/guides", label: "Гайды" },
   { href: "/notes", label: "Архив" },
@@ -12,70 +19,84 @@ const sections = [
 ];
 
 const more = [
-  { href: "/start", label: "С чего начать" },
-  { href: "/about", label: "О журнале" },
+  { href: "/start", label: "Как пользоваться" },
+  { href: "/about", label: "О картотеке" },
   { href: "/search", label: "Поиск" },
+  { href: "/rss.xml", label: "RSS" },
 ];
 
 const socials = [
   { href: SITE.socials.youtube, label: "YouTube", icon: "youtube" as const },
   { href: SITE.socials.telegram, label: "Telegram", icon: "telegram" as const },
   { href: SITE.socials.github, label: "GitHub", icon: "github" as const },
-  { href: "/rss.xml", label: "RSS", icon: "rss" as const },
 ].filter((s) => !isPlaceholderLink(s.href));
 ---
 
 <footer class="footer">
+  <div class="footer__strip" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
   <div class="wrap">
-    <div class="footer__grid">
-      <div>
+    <div class="footer__top">
+      <div class="footer__brand">
         <a href="/" class="brand" aria-label="На главную">
-          <span>{SITE.mark}</span><span class="brand__slash" aria-hidden="true"></span>
+          <span class="brand__plate">
+            <span class="brand__name">{SITE.mark}</span><span class="brand__slash" aria-hidden="true">/</span><span class="brand__led" aria-hidden="true"></span>
+          </span>
         </a>
         <p class="footer__note">
-          Журнал об инженерии ПО в эпоху супер-интеллекта. Миссия — {SITE.mission}.
+          Картотека знаний об инженерии ПО с ИИ. Концепты, связи и маршруты вместо ленты.
+          Миссия — {SITE.mission}.
         </p>
-        <div class="mt-5 flex flex-wrap gap-2">
+        <div class="footer__socials">
           {socials.map((s) => (
             <a
               href={s.href}
               class="icon-btn"
               aria-label={s.label}
               title={s.label}
-              target={s.href.startsWith("http") ? "_blank" : undefined}
-              rel={s.href.startsWith("http") ? "noopener noreferrer" : undefined}
+              target="_blank"
+              rel="noopener noreferrer"
             >
               <Icon name={s.icon} size={17} />
             </a>
           ))}
+          <a href="/rss.xml" class="icon-btn" aria-label="RSS" title="RSS">
+            <Icon name="rss" size={16} />
+          </a>
         </div>
       </div>
 
-      <nav aria-label="Разделы">
-        <h2 class="footer__title">Разделы</h2>
-        <ul class="mt-4 grid gap-2.5">
+      <nav class="footer__col" aria-label="Картотека">
+        <h2 class="footer__k">Картотека</h2>
+        <ul>
           {sections.map((item) => (
-            <li>
-              <a href={item.href} class="footer__link">{item.label}</a>
-            </li>
+            <li><a href={item.href} class="footer__link">{item.label}</a></li>
           ))}
         </ul>
       </nav>
 
-      <nav aria-label="Ещё">
-        <h2 class="footer__title">Ещё</h2>
-        <ul class="mt-4 grid gap-2.5">
+      <nav class="footer__col" aria-label="Форматы">
+        <h2 class="footer__k">Форматы</h2>
+        <ul>
+          {formats.map((item) => (
+            <li><a href={item.href} class="footer__link">{item.label}</a></li>
+          ))}
+        </ul>
+      </nav>
+
+      <nav class="footer__col" aria-label="Ещё">
+        <h2 class="footer__k">Ещё</h2>
+        <ul>
           {more.map((item) => (
-            <li>
-              <a href={item.href} class="footer__link">{item.label}</a>
-            </li>
+            <li><a href={item.href} class="footer__link">{item.label}</a></li>
           ))}
         </ul>
       </nav>
     </div>
 
     <div class="footer__bottom">
-      <p class="footer__copyright">© {year} native/</p>
+      <p>© {year} native/</p>
+      <p>Картотека, не лента. Собрано вручную.</p>
+      <a href="#content" class="footer__up">Наверх ↑</a>
     </div>
   </div>
 </footer>

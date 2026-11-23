@@ -1,64 +1,88 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { allTags, plural, tagColor } from "../lib/utils";
+import ConceptCard from "../components/ConceptCard.astro";
 import { getCollection } from "astro:content";
-import { sortByDate } from "../lib/utils";
+import { allTags, plural, sortByDate, tagColor } from "../lib/utils";
 
 const posts = sortByDate(await getCollection("posts", ({ data }) => !data.draft));
-const tags = allTags(posts).slice(0, 8);
+const tags = allTags(posts).slice(0, 10);
+const starter = ["context-budget", "claude-md-recept", "local-llm-16gb"]
+  .map((id) => posts.find((post) => post.id === id))
+  .filter((post): post is (typeof posts)[number] => Boolean(post));
 ---
 
 <BaseLayout
   title="Поиск"
-  description="Поиск по рецептам, гайдам и заметкам: по заголовкам, тегам и тексту."
+  description="Поиск по картотеке native/: концепты, термины, направления и форматы."
+  noindex
 >
   <header class="page-head">
     <div class="wrap">
-      <h1 class="page-head__title">Поиск</h1>
+      <p class="page-head__kicker"><b>картотека</b> / поиск</p>
+      <h1 class="page-head__title">Найти<br /><span class="thin">нужную карточку.</span></h1>
       <p class="page-head__lead">
-        По заголовкам, описаниям, тегам и тексту материалов.
+        По заголовкам, описаниям, тегам, направлениям и тексту. Начните с проблемы,
+        а не с названия статьи.
       </p>
     </div>
   </header>
 
-  <div class="wrap section !pt-8">
-    <div class="max-w-[720px]">
-      <div class="search-box">
-        <span class="text-[var(--muted)]" aria-hidden="true">⌕</span>
+  <div class="wrap section">
+    <div class="search-drawer">
+      <div class="search-drawer__label">
+        <span>каталожный ящик</span>
+        <span>поиск по всем концептам</span>
+      </div>
+      <label class="search-drawer__slot">
+        <span aria-hidden="true">⌕</span>
         <input
           id="search-input"
           type="search"
-          placeholder="контекст, mcp, spec-driven…"
+          placeholder="контекст, MCP, спека, tool search…"
           autocomplete="off"
           spellcheck="false"
           aria-label="Поисковый запрос"
         />
         <span class="search-box__kbd" aria-hidden="true">/</span>
-      </div>
-
+      </label>
       <p class="search-status" id="search-status">
-        {posts.length} {plural(posts.length, ["материал", "материала", "материалов"])}
+        {posts.length} {plural(posts.length, ["концепт", "концепта", "концептов"])} в картотеке
       </p>
-      <div class="search-results" id="search-results"></div>
+    </div>
 
-      <div class="mt-10">
-        <p class="label mb-3">Темы</p>
-        <div class="tag-cloud">
-          {tags.map(({ tag }) => (
-            <a href={`/tags/${tag}`} class="tag" style={`--tag-color: ${tagColor(tag)};`}>{tag}</a>
-          ))}
-        </div>
+    <div class="search-results" id="search-results"></div>
+
+    <div class="search-suggest">
+      <p class="label">Темы</p>
+      <div class="tag-cloud">
+        {tags.map(({ tag }) => (
+          <a href={`/tags/${tag}`} class="tag" style={`--tag-color: ${tagColor(tag)};`}>{tag}</a>
+        ))}
       </div>
     </div>
+
+    <section class="search-starter" id="search-starter" aria-label="С чего начать поиск">
+      <div class="connections__head">
+        <h2 class="connections__title">Если не знаете, что искать</h2>
+        <a href="/catalog" class="sec-link">Каталог <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="concept-grid">
+        {starter.map((post) => <ConceptCard post={post} />)}
+      </div>
+    </section>
   </div>
 </BaseLayout>
 
 <script>
+  type Domain = { id: string; name: string; color: string };
   type Entry = {
     title: string;
     description: string;
+    short: string;
     url: string;
     type: string;
+    code: string;
+    domains: Domain[];
     tags: string[];
     date: string;
     minutes: string;
@@ -68,6 +92,7 @@ const tags = allTags(posts).slice(0, 8);
   const input = document.getElementById("search-input") as HTMLInputElement | null;
   const results = document.getElementById("search-results");
   const status = document.getElementById("search-status");
+  const starter = document.getElementById("search-starter");
   let index: Entry[] = [];
 
   function plural(n: number, forms: [string, string, string]) {
@@ -78,12 +103,12 @@ const tags = allTags(posts).slice(0, 8);
     return forms[2];
   }
 
-  const escapeHtml = (s: string) =>
-    s.replace(/[&<>"']/g, (c) =>
-      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] ?? c,
+  const escapeHtml = (value: string) =>
+    value.replace(/[&<>"']/g, (char) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char] ?? char,
     );
 
-  const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
   function highlight(text: string, terms: string[]) {
     let out = escapeHtml(text);
@@ -98,12 +123,15 @@ const tags = allTags(posts).slice(0, 8);
     const terms = query
       .toLowerCase()
       .split(/\s+/)
-      .map((t) => t.trim())
+      .map((term) => term.trim())
       .filter(Boolean);
 
+    if (starter) starter.hidden = terms.length > 0;
+
     if (!terms.length) {
-      if (status)
-        status.textContent = `${index.length} ${plural(index.length, ["материал", "материала", "материалов"])}`;
+      if (status) {
+        status.textContent = `${index.length} ${plural(index.length, ["концепт", "концепта", "концептов"])} в картотеке`;
+      }
       if (results) results.innerHTML = "";
       return;
     }
@@ -111,54 +139,66 @@ const tags = allTags(posts).slice(0, 8);
     const scored = index
       .map((entry) => {
         const title = entry.title.toLowerCase();
-        const desc = entry.description.toLowerCase();
+        const short = entry.short.toLowerCase();
+        const description = entry.description.toLowerCase();
         const tags = entry.tags.join(" ").toLowerCase();
+        const domains = entry.domains.map((domain) => domain.name).join(" ").toLowerCase();
         const body = entry.body.toLowerCase();
         let score = 0;
         let matchedAll = 0;
 
         for (const term of terms) {
           let hit = 0;
-          if (title.includes(term)) hit += 8;
+          if (title.includes(term)) hit += 10;
+          if (short.includes(term)) hit += 6;
           if (tags.includes(term)) hit += 5;
-          if (desc.includes(term)) hit += 3;
+          if (domains.includes(term)) hit += 4;
+          if (description.includes(term)) hit += 3;
           if (body.includes(term)) hit += 1;
-          if (hit > 0) matchedAll++;
+          if (hit > 0) matchedAll += 1;
           score += hit;
         }
 
         return { entry, score, matchedAll };
       })
-      .filter((r) => r.matchedAll > 0)
+      .filter((result) => result.matchedAll > 0)
       .sort((a, b) => b.matchedAll - a.matchedAll || b.score - a.score)
       .slice(0, 15);
 
     if (status) {
       status.textContent = scored.length
-        ? `найдено ${scored.length} ${plural(scored.length, ["материал", "материала", "материалов"])}`
-        : "ничего не найдено";
+        ? `найдено ${scored.length} ${plural(scored.length, ["концепт", "концепта", "концептов"])}`
+        : "ничего не найдено — попробуйте другое слово";
     }
 
     if (!results) return;
     results.innerHTML = scored
       .map(({ entry }) => {
         const date = new Date(entry.date)
-          .toLocaleDateString("ru-RU", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-          })
+          .toLocaleDateString("ru-RU", { day: "2-digit", month: "short", year: "numeric" })
           .replace(" г.", "");
         return `<a class="search-hit" href="${entry.url}">
-          <h2>${highlight(entry.title, terms)}</h2>
-          <p>${highlight(entry.description, terms)}</p>
-          <span class="search-hit__meta">
+          <span class="search-hit__top">
+            <span class="search-hit__code">${escapeHtml(entry.code)}</span>
             <span>${escapeHtml(entry.type)}</span>
             <span>·</span>
             <span>${date}</span>
             <span>·</span>
             <span>${escapeHtml(entry.minutes)}</span>
-            ${entry.tags.slice(0, 3).map((t) => `<span>#${escapeHtml(t)}</span>`).join("")}
+          </span>
+          <h2>${highlight(entry.title, terms)}</h2>
+          <p>${highlight(entry.description, terms)}</p>
+          <span class="search-hit__tags">
+            ${entry.domains
+              .map(
+                (domain) =>
+                  `<span class="dom-pill" style="--domain-color:${domain.color}">${escapeHtml(domain.name)}</span>`,
+              )
+              .join("")}
+            ${entry.tags
+              .slice(0, 3)
+              .map((tag) => `<span>#${escapeHtml(tag)}</span>`)
+              .join("")}
           </span>
         </a>`;
       })
@@ -166,14 +206,14 @@ const tags = allTags(posts).slice(0, 8);
   }
 
   fetch("/search-index.json")
-    .then((r) => r.json())
+    .then((response) => response.json())
     .then((data: Entry[]) => {
       index = data;
       const params = new URLSearchParams(location.search);
-      const q = params.get("q") ?? "";
-      if (input && q) input.value = q;
-      search(q);
-      if (!q) input?.focus({ preventScroll: true });
+      const query = params.get("q") ?? "";
+      if (input && query) input.value = query;
+      search(query);
+      if (!query) input?.focus({ preventScroll: true });
     })
     .catch(() => {
       if (status) status.textContent = "не удалось загрузить индекс";
@@ -183,12 +223,12 @@ const tags = allTags(posts).slice(0, 8);
   input?.addEventListener("input", () => {
     window.clearTimeout(timer);
     timer = window.setTimeout(() => {
-      const q = input.value;
+      const query = input.value;
       const url = new URL(location.href);
-      if (q) url.searchParams.set("q", q);
+      if (query) url.searchParams.set("q", query);
       else url.searchParams.delete("q");
       history.replaceState(null, "", url);
-      search(q);
+      search(query);
     }, 120);
   });
 

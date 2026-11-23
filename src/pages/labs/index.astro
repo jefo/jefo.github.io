@@ -1,0 +1,68 @@
+---
+import LabLayout from "../../layouts/LabLayout.astro";
+import "../../styles/labs/index.css";
+---
+
+<LabLayout title="Варианты" variant="index" description="Три визуальных языка native/: Signal, Editorial Abstract и Chrome / Fluid.">
+  <main class="li">
+    <header class="li-header">
+      <div>
+        <p class="li-kicker">лаборатория · три языка</p>
+        <h1 class="li-title">Один хаб.<br /><em>Три поверхности.</em></h1>
+        <p class="li-lead">
+          IA не меняется: те же направления, концепты, маршруты и атлас.
+          Меняется только визуальный язык. Текущая версия хаба не тронута.
+        </p>
+      </div>
+      <a href="/" class="li-back">← Вернуться в хаб</a>
+    </header>
+
+    <div class="li-grid">
+      <a href="/labs/signal" class="li-card">
+        <div class="li-preview li-preview--signal" aria-hidden="true"></div>
+        <div class="li-card__body">
+          <div class="li-card__meta"><span>01 / signal</span><span>стекло · свет · данные</span></div>
+          <h2>Signal</h2>
+          <p>
+            Абстрактная материальность: тёмное поле, стеклянные слои, генеративные
+            сигнатуры направлений и топология вместо созвездия.
+          </p>
+          <div class="li-card__go"><span>Смотреть вариант</span><span aria-hidden="true">→</span></div>
+        </div>
+      </a>
+
+      <a href="/labs/editorial" class="li-card">
+        <div class="li-preview li-preview--editorial" aria-hidden="true"></div>
+        <div class="li-card__body">
+          <div class="li-card__meta"><span>02 / editorial</span><span>сетка · полутон · тип</span></div>
+          <h2>Editorial Abstract</h2>
+          <p>
+            Печатная логика без имитации бумаги: костяной фон, крупная Literata,
+            полутон, overprint и один плашечный цвет на смысл.
+          </p>
+          <div class="li-card__go"><span>Смотреть вариант</span><span aria-hidden="true">→</span></div>
+        </div>
+      </a>
+
+      <a href="/labs/chrome" class="li-card">
+        <div class="li-preview li-preview--chrome" aria-hidden="true"></div>
+        <div class="li-card__body">
+          <div class="li-card__meta"><span>03 / chrome</span><span>металл · иридесценция</span></div>
+          <h2>Chrome / Fluid</h2>
+          <p>
+            Жидкий металл и иридесценция: тёмное стекло, хромированные формы,
+            светящиеся связи. Самый трендовый и самый рискованный язык.
+          </p>
+          <div class="li-card__go"><span>Смотреть вариант</span><span aria-hidden="true">→</span></div>
+        </div>
+      </a>
+    </div>
+
+    <p class="li-note">
+      Все три страницы — статические style tiles. Они не входят в sitemap, закрыты
+      от индексации и не меняют текущий хаб. Сравнивайте по трём вопросам:
+      понятно ли за 5 секунд, что это картотека знаний; хочется ли нажать
+      «Контекст»; выглядит ли это как инструмент, а не как витрина.
+    </p>
+  </main>
+</LabLayout>

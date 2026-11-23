@@ -10,6 +10,13 @@ const posts = defineCollection({
     date: z.coerce.date(),
     updated: z.coerce.date().optional(),
     type: z.enum(["recipe", "guide", "note"]),
+    /** Направления картотеки. Первое — основное, остальные — пересечения. */
+    domains: z
+      .array(z.enum(["context", "agents", "tools", "practice"]))
+      .min(1)
+      .default(["practice"]),
+    /** Короткая подпись для атласа и компактных карточек. */
+    short: z.string().optional(),
     tags: z.array(z.string()).default([]),
     level: z.enum(["easy", "medium", "hard"]).optional(),
     /** Ручная оценка времени, иначе считается автоматически. */

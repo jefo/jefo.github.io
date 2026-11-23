@@ -1,36 +1,36 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import PostRow from "../../components/PostRow.astro";
+import ConceptCard from "../../components/ConceptCard.astro";
 import { getCollection } from "astro:content";
-import { allTags, plural, sortByDate } from "../../lib/utils";
+import { plural, sortedConcepts } from "../../lib/utils";
 
-const posts = sortByDate(
+const posts = sortedConcepts(
   await getCollection("posts", ({ data }) => !data.draft && data.type === "guide"),
 );
-const tags = allTags(posts);
 ---
 
 <BaseLayout
   title="Гайды"
-  description="Длинные разборы: процессы, архитектура и инструменты для ИИ-нативной разработки."
+  description="Длинные разборы картотеки: процессы, архитектура и инструменты для ИИ-нативной разработки."
 >
   <header class="page-head">
     <div class="wrap">
-      <h1 class="page-head__title">Гайды</h1>
+      <p class="page-head__kicker"><b>формат</b> / гайды</p>
+      <h1 class="page-head__title">Гайды.</h1>
       <p class="page-head__lead">
-        Сквозные процессы, архитектурные решения и разборы, которые не помещаются
-        в вертикальное видео. С примерами и критериями.
+        Сквозные процессы и разборы, которые не помещаются в один шаг.
+        С примерами, границами и критериями.
       </p>
       <div class="page-head__meta">
-        <span><b>{posts.length}</b> {plural(posts.length, ["материал", "материала", "материалов"])}</span>
-        <span><b>{tags.length}</b> {plural(tags.length, ["тема", "темы", "тем"])}</span>
+        <span><b>{String(posts.length).padStart(2, "0")}</b> {plural(posts.length, ["гайд", "гайда", "гайдов"])}</span>
+        <span>в картотеке</span>
       </div>
     </div>
   </header>
 
-  <section class="wrap">
-    <div class="post-list">
-      {posts.map((post) => <PostRow post={post} />)}
+  <div class="wrap section">
+    <div class="concept-grid">
+      {posts.map((post, index) => <ConceptCard post={post} index={index} />)}
     </div>
-  </section>
+  </div>
 </BaseLayout>

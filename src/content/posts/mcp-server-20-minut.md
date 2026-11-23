@@ -1,9 +1,11 @@
 ---
 title: "MCP-сервер за 20 минут: от пустого репозитория до подключения"
 description: "Собрать свой сервер, подключить к клиенту и не потерять полдня на трёх типичных ошибках."
+short: "MCP за 20 минут"
 date: 2026-11-07
 type: guide
-tags: ["mcp", "agents", "typescript"]
+domains: ["agents", "tools"]
+tags: ["mcp", "agents", "typescript", "tools"]
 level: medium
 time: "15 мин"
 tools: ["Node 22", "MCP SDK", "Claude Code"]

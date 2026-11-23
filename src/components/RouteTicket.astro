@@ -1,0 +1,71 @@
+---
+import { DOMAIN_BY_ID, type Route } from "../data/hub";
+import { plural, routeDuration, type Post } from "../lib/utils";
+
+interface Props {
+  route: Route;
+  posts: Post[];
+  index?: number;
+}
+
+const { route, posts, index = 0 } = Astro.props;
+const domain = DOMAIN_BY_ID[route.domain];
+const minutes = routeDuration(route.slug, posts);
+const stops = route.steps.map((step) => ({
+  ...step,
+  post: posts.find((post) => post.id === step.post),
+}));
+const visibleStops = stops.slice(0, 3);
+const rest = stops.length - visibleStops.length;
+---
+
+<article
+  class="ticket"
+  style={`--domain-color: ${domain.color};`}
+  data-route-ticket={route.slug}
+  data-index={index}
+>
+  <div class="ticket__stub">
+    <span class="ticket__code">{route.code}</span>
+    <span>{stops.length} {plural(stops.length, ["остановка", "остановки", "остановок"])} · ~{minutes} мин</span>
+  </div>
+  <div class="ticket__body">
+    <h3 class="ticket__title"><a href={`/paths/${route.slug}`}>{route.title}</a></h3>
+    <p class="ticket__subtitle">{route.subtitle}</p>
+    <p class="ticket__desc">{route.description}</p>
+    <ol class="ticket__steps">
+      {visibleStops.map((step, i) => (
+        <li>
+          <span>{String(i + 1).padStart(2, "0")}</span>
+          {step.post?.data.short ?? step.post?.data.title ?? step.post}
+        </li>
+      ))}
+      {rest > 0 && <li class="ticket__more">+{rest} {plural(rest, ["остановка", "остановки", "остановок"])}</li>}
+    </ol>
+    <div class="ticket__foot">
+      <span>{route.audience}</span>
+      <span class="ticket__progress" data-route-progress={route.slug} data-route-total={stops.length} aria-hidden="true"></span>
+      <span class="ticket__go">Маршрут →</span>
+    </div>
+  </div>
+</article>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-route-progress]").forEach((element) => {
+    const slug = element.dataset.routeProgress;
+    const total = Number(element.dataset.routeTotal ?? 0);
+    if (!slug || !total) return;
+    let done = 0;
+    try {
+      const stored = JSON.parse(localStorage.getItem(`native:route:${slug}`) ?? "[]");
+      if (Array.isArray(stored)) done = Math.min(total, stored.length);
+    } catch {
+      /* noop */
+    }
+    element.innerHTML = Array.from(
+      { length: total },
+      (_, index) => `<i data-done="${index < done}"></i>`,
+    ).join("");
+    element.setAttribute("title", `Пройдено ${done} из ${total}`);
+  });
+</script>

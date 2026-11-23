@@ -1,15 +1,21 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import PostRow from "../../components/PostRow.astro";
+import ConceptCard from "../../components/ConceptCard.astro";
 import { getCollection } from "astro:content";
-import { allTags, plural, sortByDate, type Post } from "../../lib/utils";
+import {
+  allTags,
+  plural,
+  sortedConcepts,
+  tagColor,
+  type Post,
+} from "../../lib/utils";
 
 export async function getStaticPaths() {
   const posts = await getCollection("posts", ({ data }) => !data.draft);
   const tags = allTags(posts);
   return tags.map(({ tag }) => ({
     params: { tag },
-    props: { posts: sortByDate(posts.filter((p) => p.data.tags.includes(tag))) },
+    props: { posts: sortedConcepts(posts.filter((post) => post.data.tags.includes(tag))) },
   }));
 }
 
@@ -19,28 +25,28 @@ const { posts } = Astro.props as { posts: Post[] };
 
 <BaseLayout
   title={`#${tag}`}
-  description={`Материалы по теме ${tag}: рецепты, гайды и заметки для ИИ-нативных инженеров.`}
+  description={`Карточки по теме ${tag}: концепты, рецепты и разборы для ИИ-нативных инженеров.`}
 >
   <header class="page-head">
     <div class="wrap">
-      <nav class="crumbs mb-6" aria-label="Хлебные крошки">
+      <nav class="crumbs" style="margin-bottom: 18px;" aria-label="Хлебные крошки">
         <a href="/tags">темы</a><span>/</span><span aria-current="page">{tag}</span>
       </nav>
-      <h1 class="page-head__title">#{tag}</h1>
+      <h1 class="page-head__title" style={`color: ${tagColor(tag)};`}>#{tag}</h1>
       <p class="page-head__lead">
-        {posts.length} {plural(posts.length, ["материал", "материала", "материалов"])}{" "}
-        по этому тегу.
+        {posts.length} {plural(posts.length, ["карточка", "карточки", "карточек"])} по этому срезу.
+        Это не рубрика — концепты могут пересекаться с другими темами.
       </p>
+      <div class="page-head__meta">
+        <a href="/tags" class="sec-link">Все темы →</a>
+        <a href="/atlas" class="sec-link">Атлас связей →</a>
+      </div>
     </div>
   </header>
 
   <div class="wrap section">
-    <div class="post-list">
-      {posts.map((post) => <PostRow post={post} />)}
+    <div class="concept-grid">
+      {posts.map((post, index) => <ConceptCard post={post} index={index} />)}
     </div>
-  </div>
-
-  <div class="wrap pb-6">
-    <a href="/tags" class="btn">← Все темы</a>
   </div>
 </BaseLayout>

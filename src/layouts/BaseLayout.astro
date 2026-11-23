@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import "../styles/tactile.css";
 import BaseHead from "../components/BaseHead.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
@@ -23,8 +24,9 @@ const { title, description, image, article, published, updated, tags, noindex, b
 
 const siteJsonLd = jsonLd ?? {
   "@context": "https://schema.org",
-  "@type": "Blog",
-  name: SITE.title,
+  "@type": "WebSite",
+  name: SITE.mark,
+  alternateName: "native/ — картотека знаний",
   description: SITE.description,
   url: SITE.url,
   inLanguage: "ru-RU",

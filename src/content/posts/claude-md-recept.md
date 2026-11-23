@@ -1,9 +1,11 @@
 ---
 title: "CLAUDE.md, который реально работает: 7 секций и один тест"
 description: "Файл с правилами для агента — это не промпт и не документация. Это контракт. Разбираю структуру, которую не хочется переписывать каждый спринт."
+short: "CLAUDE.md"
 date: 2026-11-14
 updated: 2026-11-18
 type: recipe
+domains: ["agents", "practice"]
 tags: ["context", "agents", "workflow"]
 level: easy
 time: "7 мин"

@@ -1,0 +1,74 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import RouteTicket from "../../components/RouteTicket.astro";
+import SectionHead from "../../components/SectionHead.astro";
+import { getCollection } from "astro:content";
+import { ROUTES } from "../../data/hub";
+import { routeDuration, sortByDate } from "../../lib/utils";
+
+const posts = sortByDate(await getCollection("posts", ({ data }) => !data.draft));
+const totalMinutes = ROUTES.reduce((sum, route) => sum + routeDuration(route.slug, posts), 0);
+---
+
+<BaseLayout
+  title="Маршруты"
+  description="Три маршрута по картотеке native/: собрать рабочий процесс с агентом, вернуть контекст под контроль и поднять свой MCP-инструмент."
+>
+  <header class="page-head">
+    <div class="wrap">
+      <p class="page-head__kicker"><b>картотека</b> / маршруты</p>
+      <h1 class="page-head__title">Порядок<br /><span class="thin">важнее скорости.</span></h1>
+      <p class="page-head__lead">
+        Маршрут — это не курс и не плейлист. Это последовательность карточек,
+        в которой каждая следующая опирается на предыдущую. Прогресс сохраняется
+        в браузере, без аккаунта.
+      </p>
+      <div class="page-head__meta">
+        <span><b>{String(ROUTES.length).padStart(2, "0")}</b> маршрута</span>
+        <span><b>~{totalMinutes}</b> минут</span>
+        <span><b>{String(posts.length).padStart(2, "0")}</b> концептов</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap section">
+    <div class="ticket-grid">
+      {ROUTES.map((route, index) => <RouteTicket route={route} posts={posts} index={index} />)}
+    </div>
+  </div>
+
+  <div class="wrap section">
+    <SectionHead
+      index="01"
+      kicker="как это работает"
+      title="Три правила маршрута."
+      sub="Никакой геймификации: только порядок, который экономит контекст."
+    />
+    <div class="concept-grid">
+      <div class="info-card">
+        <p class="info-card__k">01</p>
+        <h3 class="info-card__title">Сначала карточка, потом соседняя.</h3>
+        <p class="info-card__text">
+          Маршрут собран по связям, а не по датам. Если концепт опирается на предыдущий,
+          он идёт после него.
+        </p>
+      </div>
+      <div class="info-card">
+        <p class="info-card__k">02</p>
+        <h3 class="info-card__title">Прогресс — в браузере.</h3>
+        <p class="info-card__text">
+          Отметка «прочитано» живёт в localStorage. Никаких аккаунтов, трекеров
+          и писем «вы бросили маршрут».
+        </p>
+      </div>
+      <div class="info-card">
+        <p class="info-card__k">03</p>
+        <h3 class="info-card__title">Маршрут можно бросить.</h3>
+        <p class="info-card__text">
+          Это картотека, а не школа. Если нужна одна карточка — откройте её напрямую
+          через каталог или атлас.
+        </p>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

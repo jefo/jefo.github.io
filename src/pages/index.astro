@@ -1,169 +1,367 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import PostRow from "../components/PostRow.astro";
+import AtlasMap from "../components/AtlasMap.astro";
+import ConceptCard from "../components/ConceptCard.astro";
+import DomainPlate from "../components/DomainPlate.astro";
 import Icon from "../components/Icon.astro";
+import RouteTicket from "../components/RouteTicket.astro";
+import SectionHead from "../components/SectionHead.astro";
 import { getCollection } from "astro:content";
-import { SITE, isPlaceholderLink } from "../config";
+import { SITE } from "../config";
 import {
-  allTags,
+  ATLAS_POSITIONS,
+  DOMAINS,
+  GLOSSARY,
+  ROUTES,
+  glossarySlug,
+} from "../data/hub";
+import {
+  conceptCode,
+  conceptSort,
+  domainCounts,
   formatDate,
-  postHref,
-  readingTime,
+  plural,
+  primaryDomain,
+  routeDuration,
   sortByDate,
-  tagColor,
+  tagConnections,
+  type Post,
 } from "../lib/utils";
 
 const posts = sortByDate(await getCollection("posts", ({ data }) => !data.draft));
-const allTopics = allTags(posts);
-const tags = allTopics.slice(0, 8);
+const ordered = [...posts].sort(conceptSort);
+const counts = domainCounts(posts);
+const latest = sortByDate(posts).slice(0, 3);
+const updated = posts.reduce((date, post) => {
+  const candidate = post.data.updated ?? post.data.date;
+  return candidate > date ? candidate : date;
+}, new Date(0));
 
-const counts = posts.reduce(
-  (acc, p) => ({ ...acc, [p.data.type]: (acc[p.data.type] ?? 0) + 1 }),
-  {} as Record<string, number>,
+const edgePairs = tagConnections(posts);
+const edgeCount = edgePairs.length;
+
+const featuredRoute = ROUTES[0];
+const featuredMinutes = routeDuration(featuredRoute.slug, posts);
+const featuredStops = featuredRoute.steps
+  .map((step) => posts.find((post) => post.id === step.post))
+  .filter((post): post is Post => Boolean(post));
+
+const heroCards = ["context-budget", "claude-md-recept", "local-llm-16gb", "prompt-kritik"]
+  .map((id) => posts.find((post) => post.id === id))
+  .filter((post): post is Post => Boolean(post));
+
+const miniNodes = ordered.map((post) => {
+  const domain = primaryDomain(post);
+  const pos = ATLAS_POSITIONS[post.id] ?? { x: 550, y: 350 };
+  return {
+    id: post.id,
+    code: conceptCode(post),
+    x: pos.x,
+    y: pos.y,
+    color: domain.color,
+  };
+});
+
+const termPreview = GLOSSARY.filter((term) =>
+  ["Контекстное окно", "Context rot", "MCP", "Tool search", "Спека", "Квантизация"].includes(
+    term.term,
+  ),
 );
 
-const excerptPost = posts.find((p) => p.id === "context-budget") ?? posts[0];
-const quotePost = posts.find((p) => p.id === "agent-40-shagov") ?? posts[0];
-const excerptMinutes = excerptPost.data.time ?? `${readingTime(excerptPost.body)} мин`;
-const updated = posts.reduce((latest, p) => {
-  const date = p.data.updated ?? p.data.date;
-  return date > latest ? date : latest;
-}, new Date(0));
+const highlights: { label: string; value: string; note: string; href: string }[] = [
+  { label: "Каталог", value: String(posts.length).padStart(2, "0"), note: "концептов", href: "/catalog" },
+  { label: "Направления", value: String(DOMAINS.length).padStart(2, "0"), note: "материала", href: "/catalog" },
+  { label: "Атлас", value: String(edgeCount), note: "связей", href: "/atlas" },
+  { label: "Маршруты", value: String(ROUTES.length).padStart(2, "0"), note: "маршрута", href: "/paths" },
+];
 ---
 
 <BaseLayout description={SITE.description}>
-  <section class="masthead">
-    <div class="wrap masthead__grid">
-      <div>
-        <h1 class="masthead__title">
-          Из шортса —<br />
-          в <span class="mark">стек</span>.
-        </h1>
-        <p class="masthead__lede">
-          Полевой журнал об инженерии ПО в эпоху супер-интеллекта. Повышаем
-          ИИ-грамотность — через инструменты, код и инженерное мышление.
+  <section class="hero">
+    <div class="wrap hero__grid">
+      <div class="hero__copy reveal">
+        <p class="hero__kicker">
+          <span>хаб знаний</span>
+          <b>обновлено {formatDate(updated)}</b>
         </p>
-        <div class="masthead__foot">
-          <a href="/notes" class="text-link">Все записи <span>→</span></a>
-          <a href="/start" class="text-link">С чего начать</a>
-          <span class="masthead__date">обновлено {formatDate(updated)}</span>
+        <h1 class="hero__title">
+          Знание не в ленте.<br />
+          Оно в <span class="mark">картотеке</span>.
+        </h1>
+        <p class="hero__lede">
+          native/ — хаб об инженерии ПО с ИИ. {posts.length} {plural(posts.length, ["концепт", "концепта", "концептов"])},
+          {" "}{DOMAINS.length} {plural(DOMAINS.length, ["направление", "направления", "направлений"])},
+          связи и маршруты. Здесь не читают всё подряд — здесь находят нужное
+          и возвращаются.
+        </p>
+        <div class="hero__actions">
+          <a href="/catalog" class="btn btn--primary">Открыть каталог <Icon name="arrowRight" size={16} /></a>
+          <a href="/start" class="btn">С чего начать</a>
+        </div>
+        <div class="hero__stats">
+          {highlights.map((item) => (
+            <a class="hero__stat" href={item.href} aria-label={`${item.label}: ${item.value} ${item.note}`}>
+              <b>{item.value}</b>
+              {item.note}
+            </a>
+          ))}
         </div>
       </div>
 
-      <figure class="excerpt">
-        <figcaption class="excerpt__cap">
-          <span>листинг</span> из рецепта «Контекстное окно — это бюджет, а не склад»
-        </figcaption>
-        <div class="excerpt__code" role="img" aria-label="Фрагмент рецепта о контексте">
-          <div class="excerpt__line">
-            <span class="ln">01</span>
-            <code><span class="tok-muted"># Контекст задачи: экспорт CSV</span></code>
-          </div>
-          <div class="excerpt__line">
-            <span class="ln">02</span>
-            <code> </code>
-          </div>
-          <div class="excerpt__line">
-            <span class="ln">03</span>
-            <code><span class="tok-key">## Карта</span></code>
-          </div>
-          <div class="excerpt__line">
-            <span class="ln">04</span>
-            <code><span class="tok-muted">-</span> отчёты: <span class="tok-str">src/reports/*.ts</span></code>
-          </div>
-          <div class="excerpt__line">
-            <span class="ln">05</span>
-            <code><span class="tok-muted">-</span> схема БД: <span class="tok-str">src/db/schema.ts</span></code>
-          </div>
-          <div class="excerpt__line">
-            <span class="ln">06</span>
-            <code><span class="tok-muted">-</span> тесты: <span class="tok-str">рядом с модулем</span></code>
-          </div>
+      <div class="stack reveal" style="--i: 1;">
+        <div class="stack__tabs" role="tablist" aria-label="Превью картотеки">
+          <button
+            class="stack__tab"
+            type="button"
+            role="tab"
+            id="stack-tab-catalog"
+            aria-controls="stack-panel-catalog"
+            aria-selected="true"
+            data-stack-tab="catalog"
+          >Каталог</button>
+          <button
+            class="stack__tab"
+            type="button"
+            role="tab"
+            id="stack-tab-route"
+            aria-controls="stack-panel-route"
+            aria-selected="false"
+            tabindex="-1"
+            data-stack-tab="route"
+          >Маршрут</button>
+          <button
+            class="stack__tab"
+            type="button"
+            role="tab"
+            id="stack-tab-atlas"
+            aria-controls="stack-panel-atlas"
+            aria-selected="false"
+            tabindex="-1"
+            data-stack-tab="atlas"
+          >Атлас</button>
         </div>
-        <div class="excerpt__foot">
-          <p class="excerpt__note">Режьте историю, а не правила.</p>
-          <a href={postHref(excerptPost)} class="excerpt__link">
-            читать рецепт · {excerptMinutes} →
-          </a>
+
+        <div class="stack__stage">
+          <section
+            class="stack__sheet is-active"
+            id="stack-panel-catalog"
+            role="tabpanel"
+            aria-labelledby="stack-tab-catalog"
+            data-stack-panel="catalog"
+          >
+            <div class="stack__head"><span>native/ · каталог</span><b>{posts.length} концептов</b></div>
+            <p class="stack__title">Каждый концепт —<br />карточка с шифром.</p>
+            <p class="stack__text">
+              Не пост в ленте, а единица знания: тема, формат, уровень, время
+              и связи с соседями.
+            </p>
+            <ul class="stack__list">
+              {heroCards.map((post) => (
+                <li>
+                  <code>{conceptCode(post)}</code>
+                  <b>{post.data.short ?? post.data.title}</b>
+                  <span>{primaryDomain(post).name}</span>
+                </li>
+              ))}
+            </ul>
+            <div class="stack__foot">
+              <a href="/catalog" class="stack__cta">Открыть каталог <span aria-hidden="true">→</span></a>
+              <span class="stack__stamp">{String(posts.length).padStart(2, "0")} / {String(DOMAINS.length).padStart(2, "0")}</span>
+            </div>
+          </section>
+
+          <section
+            class="stack__sheet"
+            id="stack-panel-route"
+            role="tabpanel"
+            aria-labelledby="stack-tab-route"
+            aria-hidden="true"
+            data-stack-panel="route"
+          >
+            <div class="stack__head"><span>{featuredRoute.code} · маршрут</span><b>~{featuredMinutes} мин</b></div>
+            <p class="stack__title">Первый контакт.</p>
+            <p class="stack__text">
+              Пять остановок от «сделай фичу» до предсказуемого процесса.
+              Каждый следующий концепт опирается на предыдущий.
+            </p>
+            <div class="stack__mini-route" aria-hidden="true">
+              {featuredStops.map(() => <i></i>)}
+            </div>
+            <ul class="stack__list">
+              {featuredStops.slice(0, 3).map((post) => (
+                <li>
+                  <code>{conceptCode(post)}</code>
+                  <b>{post.data.short ?? post.data.title}</b>
+                </li>
+              ))}
+              {featuredRoute.steps.length > 3 && (
+                <li>
+                  <span>
+                    +{featuredRoute.steps.length - 3}{" "}
+                    {plural(featuredRoute.steps.length - 3, ["остановка", "остановки", "остановок"])}
+                  </span>
+                </li>
+              )}
+            </ul>
+            <div class="stack__foot">
+              <a href={`/paths/${featuredRoute.slug}`} class="stack__cta">Открыть маршрут <span aria-hidden="true">→</span></a>
+              <span class="stack__stamp">{featuredRoute.steps.length} шагов</span>
+            </div>
+          </section>
+
+          <section
+            class="stack__sheet"
+            id="stack-panel-atlas"
+            role="tabpanel"
+            aria-labelledby="stack-tab-atlas"
+            aria-hidden="true"
+            data-stack-panel="atlas"
+          >
+            <div class="stack__head"><span>atlas · связи</span><b>{edgeCount} связей</b></div>
+            <p class="stack__title">Карта соседей.</p>
+            <p class="stack__text">
+              Девять узлов и общие темы между ними. Толщина линии показывает,
+              насколько концепты близки.
+            </p>
+            <svg class="stack__mini-map" viewBox="0 0 1100 700" role="img" aria-label="Мини-карта связей концептов">
+              {edgePairs.map((edge) => {
+                const a = miniNodes.find((node) => node.id === edge.a.id);
+                const b = miniNodes.find((node) => node.id === edge.b.id);
+                if (!a || !b) return null;
+                return <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="var(--line-strong)" stroke-width="1.2" />;
+              })}
+              {miniNodes.map((node) => (
+                <g>
+                  <circle cx={node.x} cy={node.y} r="17" fill={node.color} stroke="var(--paper)" stroke-width="4" />
+                  <text x={node.x} y={node.y + 3.5} text-anchor="middle" font-family="ui-monospace, monospace" font-size="9" font-weight="600" fill="var(--paper)">{node.code}</text>
+                </g>
+              ))}
+            </svg>
+            <div class="stack__foot">
+              <a href="/atlas" class="stack__cta">Открыть атлас <span aria-hidden="true">→</span></a>
+              <span class="stack__stamp">{posts.length} узлов</span>
+            </div>
+          </section>
         </div>
-      </figure>
+      </div>
     </div>
   </section>
 
-  <div class="wrap journal">
-    <div class="journal__main">
-      <header class="entries__head">
-        <h2 class="entries__title">Записи</h2>
-        <span class="entries__count">{posts.length}</span>
-        <a href="/notes" class="entries__link">архив →</a>
-      </header>
-
-      <div class="entries">
-        <PostRow post={posts[0]} lead />
-        {posts.slice(1, 3).map((post) => <PostRow post={post} />)}
-
-        <aside class="pullquote">
-          <p>«Длинная сессия даёт иллюзию прогресса: история растёт, а результат — нет».</p>
-          <cite>
-            из заметки —{" "}
-            <a href={postHref(quotePost)}>«Почему агент ломается на 40-м шаге»</a>
-          </cite>
-        </aside>
-
-        {posts.slice(3).map((post) => <PostRow post={post} />)}
-      </div>
+  <section class="section wrap">
+    <SectionHead
+      index="01"
+      kicker="направления"
+      title="Четыре материала."
+      sub="Каждое направление — свой материал и свой способ думать. Концепты могут лежать на пересечении."
+      href="/catalog"
+      linkLabel="Весь каталог"
+    />
+    <div class="plate-grid">
+      {DOMAINS.map((domain, index) => (
+        <DomainPlate domain={domain} count={counts[domain.id]} index={index} />
+      ))}
     </div>
+  </section>
 
-    <aside class="journal__rail">
-      <section class="rail__block">
-        <p class="rail__label">Журнал</p>
-        <p class="rail__name">native/</p>
-        <p class="rail__text">
-          Об инженерии ПО в эпоху супер-интеллекта. Миссия — {SITE.mission}.
+  <section class="section wrap">
+    <SectionHead
+      index="02"
+      kicker="маршруты"
+      title="Не список, а путь."
+      sub="Порядок, в котором концепты собираются в рабочий процесс. Прогресс сохраняется в браузере."
+      href="/paths"
+      linkLabel="Все маршруты"
+    />
+    <div class="ticket-grid">
+      {ROUTES.map((route, index) => <RouteTicket route={route} posts={posts} index={index} />)}
+    </div>
+  </section>
+
+  <section class="section wrap">
+    <SectionHead
+      index="03"
+      kicker="атлас"
+      title="Связи важнее даты."
+      sub="Карта концептов и общих тем. Здесь видно, что читать рядом, а не что вышло последним."
+      href="/atlas"
+      linkLabel="Открыть атлас"
+    />
+    <AtlasMap posts={ordered} mode="mini" />
+  </section>
+
+  <section class="section wrap">
+    <SectionHead
+      index="04"
+      kicker="пополнение"
+      title="Свежие карточки."
+      sub="Новые концепты получают шифр, направление и связи — как в настоящей картотеке."
+      href="/catalog"
+      linkLabel="Все концепты"
+    />
+    <div class="concept-grid">
+      {latest.map((post, index) => <ConceptCard post={post} index={index} />)}
+    </div>
+  </section>
+
+  <section class="section wrap">
+    <div class="home-bottom">
+      <div class="home-glossary">
+        <p class="kicker">05 · словарь</p>
+        <h2 class="home-bottom__title">Термины под рукой.</h2>
+        <p class="home-bottom__text">
+          Короткие определения без воды. Каждый термин ведёт к карточке,
+          где он разобран в деле.
         </p>
-        <a href="/about" class="rail__link">о журнале →</a>
-        <p class="rail__byline">Автор — {SITE.author}</p>
-      </section>
-
-      <section class="rail__block">
-        <p class="rail__label">Разделы</p>
-        <ul class="rail__list">
-          <li>
-            <a href="/recipes">рецепты <span>{String(counts.recipe ?? 0).padStart(2, "0")}</span></a>
-          </li>
-          <li>
-            <a href="/guides">гайды <span>{String(counts.guide ?? 0).padStart(2, "0")}</span></a>
-          </li>
-          <li>
-            <a href="/notes?type=note">заметки <span>{String(counts.note ?? 0).padStart(2, "0")}</span></a>
-          </li>
-          <li>
-            <a href="/tags">все темы <span>{String(allTopics.length).padStart(2, "0")}</span></a>
-          </li>
-        </ul>
-      </section>
-
-      <section class="rail__block">
-        <p class="rail__label">Темы</p>
-        <div class="rail__tags">
-          {tags.map(({ tag }) => (
-            <a href={`/tags/${tag}`} style={`--tag-color: ${tagColor(tag)};`}>{tag}</a>
+        <div class="gloss-strip">
+          {termPreview.map((term) => (
+            <a href={`/glossary#${glossarySlug(term.term)}`} class="gloss-chip">{term.term}</a>
           ))}
         </div>
-      </section>
+        <a href="/glossary" class="sec-link">Весь словарь <span aria-hidden="true">→</span></a>
+      </div>
 
-      <section class="rail__block">
-        <p class="rail__label">Подписка</p>
-        <p class="rail__text">Новые записи — в RSS и Telegram.</p>
-        <div class="rail__sub">
-          <a href="/rss.xml"><Icon name="rss" size={12} /> RSS</a>
-          {!isPlaceholderLink(SITE.socials.telegram) && (
-            <a href={SITE.socials.telegram} target="_blank" rel="noopener noreferrer">
-              <Icon name="telegram" size={12} /> Telegram
-            </a>
-          )}
-        </div>
-      </section>
-    </aside>
-  </div>
+      <a class="home-start" href="/start">
+        <p class="kicker kicker--accent">старт</p>
+        <h2 class="home-start__title">Впервые здесь?</h2>
+        <p class="home-start__text">
+          Три способа войти: по маршруту, по направлению или через атлас.
+          Плюс легенда карточки — чтобы читать шифры без догадок.
+        </p>
+        <span class="home-start__go">Как пользоваться картотекой <span aria-hidden="true">→</span></span>
+      </a>
+    </div>
+  </section>
 </BaseLayout>
+
+<script>
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>("[data-stack-tab]")];
+  const panels = [...document.querySelectorAll<HTMLElement>("[data-stack-panel]")];
+
+  function selectTab(key: string, focus = false) {
+    tabs.forEach((tab) => {
+      const active = tab.dataset.stackTab === key;
+      tab.setAttribute("aria-selected", String(active));
+      tab.tabIndex = active ? 0 : -1;
+      if (active && focus) tab.focus();
+    });
+    panels.forEach((panel) => {
+      const active = panel.dataset.stackPanel === key;
+      panel.classList.toggle("is-active", active);
+      panel.setAttribute("aria-hidden", String(!active));
+    });
+  }
+
+  tabs.forEach((tab, index) => {
+    tab.addEventListener("click", () => selectTab(tab.dataset.stackTab ?? "catalog"));
+    tab.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+      event.preventDefault();
+      let next = index;
+      if (event.key === "ArrowLeft") next = (index - 1 + tabs.length) % tabs.length;
+      if (event.key === "ArrowRight") next = (index + 1) % tabs.length;
+      if (event.key === "Home") next = 0;
+      if (event.key === "End") next = tabs.length - 1;
+      selectTab(tabs[next].dataset.stackTab ?? "catalog", true);
+    });
+  });
+</script>

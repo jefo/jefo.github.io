@@ -1,0 +1,161 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import { GLOSSARY, glossarySlug } from "../data/hub";
+import {
+  conceptCode,
+  plural,
+  postHref,
+  sortByDate,
+  type Post,
+} from "../lib/utils";
+
+const posts = sortByDate(await getCollection("posts", ({ data }) => !data.draft));
+const byId = new Map(posts.map((post) => [post.id, post]));
+
+const isCyrillic = (value: string) => /[А-Яа-яЁё]/.test(value[0] ?? "");
+const terms = [...GLOSSARY].sort((a, b) => {
+  const aCyr = isCyrillic(a.term);
+  const bCyr = isCyrillic(b.term);
+  if (aCyr !== bCyr) return aCyr ? -1 : 1;
+  return a.term.localeCompare(b.term, aCyr ? "ru" : "en");
+});
+const groups: { letter: string; script: "cyr" | "lat"; terms: typeof terms }[] = [];
+for (const term of terms) {
+  const letter = term.term[0]?.toUpperCase() ?? "#";
+  const script = isCyrillic(term.term) ? "cyr" : "lat";
+  const last = groups[groups.length - 1];
+  if (last && last.letter === letter && last.script === script) last.terms.push(term);
+  else groups.push({ letter, script, terms: [term] });
+}
+const firstLatin = groups.findIndex((group) => group.script === "lat");
+---
+
+<BaseLayout
+  title="Словарь"
+  description="Термины картотеки native/: контекст, агенты, MCP, tool search, спеки и локальные модели. Коротко и со ссылками на концепты."
+>
+  <header class="page-head">
+    <div class="wrap">
+      <p class="page-head__kicker"><b>картотека</b> / словарь</p>
+      <h1 class="page-head__title">Словарь<br /><span class="thin">без воды.</span></h1>
+      <p class="page-head__lead">
+        Термины, которые встречаются в карточках. Одно-два предложения и ссылки
+        на концепты, где термин разобран в деле.
+      </p>
+      <div class="page-head__meta">
+        <span><b>{String(terms.length).padStart(2, "0")}</b> терминов</span>
+        <span><b>{String(groups.length).padStart(2, "0")}</b> букв</span>
+        <span>обновляется вместе с картотекой</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap glossary">
+    <aside class="glossary__side" aria-label="Навигация по словарю">
+      <label class="glossary-search">
+        <span class="mono" style="color: var(--muted); font-size: 14px;" aria-hidden="true">⌕</span>
+        <input
+          id="glossary-filter"
+          type="search"
+          placeholder="фильтр по термину…"
+          autocomplete="off"
+          spellcheck="false"
+          aria-label="Фильтр по терминам"
+        />
+      </label>
+      <div class="glossary__letters" aria-label="Буквы">
+        {groups.map((group, index) => (
+          <Fragment>
+            {index === firstLatin && firstLatin > 0 && (
+              <span class="glossary__letter-sep" aria-hidden="true">a–z</span>
+            )}
+            <a
+              class:list={["glossary__letter-link", group.script === "lat" && "is-latin"]}
+              href={`#letter-${group.letter}`}
+              aria-label={group.script === "lat" ? `Латинская буква ${group.letter}` : `Буква ${group.letter}`}
+            >{group.letter}</a>
+          </Fragment>
+        ))}
+      </div>
+      <p class="glossary__count" id="glossary-count">
+        {terms.length} {plural(terms.length, ["термин", "термина", "терминов"])}
+      </p>
+      <p class="glossary__count" style="border-top: 0; margin-top: 0; padding-top: 0;">
+        Каждый термин ведёт к карточке с шифром.
+      </p>
+    </aside>
+
+    <div class="glossary__main">
+      <p class="glossary-empty" id="glossary-empty">Такого термина пока нет. Попробуйте другое слово.</p>
+      {groups.map((group, index) => (
+        <section class="glossary-group" id={`letter-${group.letter}`} data-letter={group.letter}>
+          {index > 0 && groups[index - 1].script !== group.script && (
+            <p class="glossary-script">{group.script === "lat" ? "латиница" : "кириллица"}</p>
+          )}
+          <h2 class="glossary-letter">{group.letter}</h2>
+          <div class="term-list">
+            {group.terms.map((term) => {
+              const links = term.posts
+                .map((id) => byId.get(id))
+                .filter((post): post is Post => Boolean(post));
+              return (
+                <article class="term" id={glossarySlug(term.term)}>
+                  <div class="term__head">
+                    <h3 class="term__title">{term.term}</h3>
+                    <span class="term__links">
+                      {links.map((post) => (
+                        <a href={postHref(post)} title={post.data.title}>{conceptCode(post)}</a>
+                      ))}
+                    </span>
+                  </div>
+                  <p class="term__text">{term.definition}</p>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const input = document.getElementById("glossary-filter") as HTMLInputElement | null;
+  const terms = [...document.querySelectorAll<HTMLElement>(".term")];
+  const groups = [...document.querySelectorAll<HTMLElement>(".glossary-group")];
+  const count = document.getElementById("glossary-count");
+  const empty = document.getElementById("glossary-empty");
+
+  function plural(n: number, forms: [string, string, string]) {
+    const mod10 = n % 10;
+    const mod100 = n % 100;
+    if (mod10 === 1 && mod100 !== 11) return forms[0];
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return forms[1];
+    return forms[2];
+  }
+
+  function apply() {
+    const query = (input?.value ?? "").trim().toLowerCase();
+    let visible = 0;
+    terms.forEach((term) => {
+      const show = !query || (term.textContent ?? "").toLowerCase().includes(query);
+      term.hidden = !show;
+      if (show) visible += 1;
+    });
+    groups.forEach((group) => {
+      group.hidden = ![...group.querySelectorAll<HTMLElement>(".term")].some((term) => !term.hidden);
+    });
+    if (count) count.textContent = `${visible} ${plural(visible, ["термин", "термина", "терминов"])}`;
+    if (empty) empty.style.display = visible === 0 ? "block" : "none";
+  }
+
+  input?.addEventListener("input", apply);
+  input?.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      input.value = "";
+      apply();
+      input.blur();
+    }
+  });
+</script>

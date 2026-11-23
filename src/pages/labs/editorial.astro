@@ -1,0 +1,203 @@
+---
+import LabLayout from "../../layouts/LabLayout.astro";
+import "../../styles/labs/editorial.css";
+
+const domains = [
+  { id: "context", index: "01", name: "Контекст", text: "Поле внимания. То, что модель видит, и то, что проваливается в середине.", count: 4 },
+  { id: "agents", index: "02", name: "Агенты", text: "Контракты, спеки и границы. Поведение, которое можно проверить.", count: 4 },
+  { id: "tools", index: "03", name: "Инструменты", text: "MCP, поиск и локальный контур. Практический слой.", count: 4 },
+  { id: "practice", index: "04", name: "Практика", text: "Приёмы, которые пережили не один проект.", count: 4 },
+];
+
+const nodes = [
+  { id: "K-01", x: 150, y: 160, label: "Бюджет контекста" },
+  { id: "K-02", x: 290, y: 100, label: "40-й шаг" },
+  { id: "K-03", x: 165, y: 300, label: "Tool Search" },
+  { id: "K-04", x: 310, y: 350, label: "TS: рецепт" },
+  { id: "A-01", x: 520, y: 145, label: "CLAUDE.md" },
+  { id: "A-02", x: 625, y: 280, label: "Spec-driven" },
+  { id: "A-03", x: 770, y: 160, label: "MCP за 20 минут" },
+  { id: "T-01", x: 870, y: 335, label: "Локальная модель" },
+  { id: "P-01", x: 590, y: 435, label: "Критик" },
+];
+
+const edges: [string, string][] = [
+  ["K-01", "K-02"], ["K-01", "K-03"], ["K-01", "K-04"], ["K-01", "A-01"], ["K-01", "P-01"],
+  ["K-02", "A-01"], ["K-02", "A-03"], ["K-02", "A-02"], ["K-03", "K-04"], ["K-03", "A-01"],
+  ["K-03", "A-03"], ["K-03", "T-01"], ["K-04", "A-03"], ["K-04", "T-01"], ["A-01", "A-02"],
+  ["A-02", "A-03"], ["A-03", "T-01"], ["A-02", "P-01"],
+];
+
+const byId = new Map(nodes.map((node) => [node.id, node]));
+---
+
+<LabLayout title="Editorial" variant="editorial" description="Editorial Abstract — сетка, крупная типографика, полутон и печатная логика без имитации бумаги.">
+  <main class="ed-page">
+    <header class="ed-nav">
+      <a href="/" class="ed-brand">native<b>/</b><i aria-hidden="true"></i></a>
+      <nav aria-label="Навигация варианта">
+        <a href="#domains">Направления</a>
+        <a href="#concept">Карточка</a>
+        <a href="#atlas">Атлас</a>
+        <a href="#tokens">Токены</a>
+      </nav>
+      <span class="ed-nav__meta">editorial / 2026 · 09 / 04</span>
+    </header>
+
+    <section class="ed-hero">
+      <div>
+        <p class="ed-kicker"><b>editorial abstract</b> · картотека знаний</p>
+        <h1><span class="ed-title-line">Знание не в ленте.</span><span class="ed-title-line">Оно в <em>картотеке</em>.</span></h1>
+        <p class="ed-lede">
+          Хаб об инженерии ПО с ИИ. Не журнал и не лента: сетка, шифры, связи
+          и маршруты. Печатная логика без имитации бумаги — только типографика,
+          полутон и цвет.
+        </p>
+        <div class="ed-actions">
+          <a href="#domains" class="ed-btn ed-btn--primary">Открыть каталог →</a>
+          <a href="#atlas" class="ed-btn ed-btn--accent">Смотреть атлас</a>
+        </div>
+      </div>
+
+      <div class="ed-hero__visual">
+        <div class="ed-plate" aria-hidden="true">
+          <span class="ed-plate__blob"></span>
+          <span class="ed-plate__num">FIG. 01 / K-01</span>
+          <span class="ed-plate__label">контекст / поле внимания</span>
+          <span class="ed-plate__reg"></span>
+        </div>
+        <p class="ed-hero__caption"><b>Полутон + overprint</b><span>координатная сетка 7 px</span></p>
+      </div>
+    </section>
+
+    <div class="ed-ticker">
+      <span><b>K-01</b> бюджет контекста</span>
+      <span><b>A-01</b> CLAUDE.md</span>
+      <span><b>T-01</b> локальная модель</span>
+      <span><b>P-01</b> критик</span>
+      <span><b>R-01</b> первый контакт</span>
+      <span><b>ATLAS</b> 25 связей</span>
+      <span><b>GLOSSARY</b> 20 терминов</span>
+    </div>
+
+    <section class="ed-section" id="domains">
+      <header class="ed-sec-head">
+        <span class="ed-sec-head__num">01</span>
+        <h2>Четыре поля.</h2>
+        <div class="ed-sec-head__meta">
+          <p>Направления как печатные пластины: полутон, overprint и один цвет на смысл. Не материалы, а визуальные коды.</p>
+          <a href="#" class="ed-list-link">Весь каталог →</a>
+        </div>
+      </header>
+
+      <div class="ed-domains">
+        {domains.map((domain) => (
+          <article class={`ed-domain ed-domain--${domain.id}`}>
+            <div class="ed-plate" aria-hidden="true">
+              <span class="ed-plate__num">{domain.index}</span>
+              <span class="ed-plate__reg"></span>
+            </div>
+            <div class="ed-domain__meta">
+              <span>{domain.index} / 04</span>
+              <span>{String(domain.count).padStart(2, "0")} концепта</span>
+            </div>
+            <h3>{domain.name}</h3>
+            <p>{domain.text}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="ed-section ed-spread" id="concept">
+      <div class="ed-spread__left">
+        <span class="ed-spread__code">K-01 · КОНТЕКСТ · РЕЦЕПТ</span>
+        <h2>Контекстное окно — это бюджет, а не склад</h2>
+      </div>
+      <div class="ed-spread__right">
+        <p>
+          Пять правил упаковки контекста: что класть в окно, что выкидывать
+          без жалости и как понять, что вы уже утонули. Внимание модели
+          неравномерно: начало и конец весят больше середины.
+        </p>
+        <dl class="ed-dl">
+          <div><dt>время</dt><dd>6 мин</dd></div>
+          <div><dt>уровень</dt><dd>легко</dd></div>
+          <div><dt>связи</dt><dd>K-02 · A-01 · P-01 · K-03</dd></div>
+          <div><dt>маршрут</dt><dd>R-01 / Первый контакт</dd></div>
+        </dl>
+        <div class="ed-spread__actions">
+          <a href="#" class="ed-btn ed-btn--primary">Открыть карточку →</a>
+          <a href="#" class="ed-btn">Связи</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="ed-section" id="atlas">
+      <header class="ed-sec-head">
+        <span class="ed-sec-head__num">02</span>
+        <h2>Схема связей.</h2>
+        <div class="ed-sec-head__meta">
+          <p>Атлас как печатная схема: чёрные линии, точки, один плашечный цвет. Без тёмного стекла и без «созвездий».</p>
+        </div>
+      </header>
+
+      <div class="ed-atlas">
+        <div class="ed-atlas__bar">
+          <span><b>ATLAS</b> / 25 связей / 09 узлов</span>
+          <span>схема 01 · общие темы</span>
+        </div>
+        <svg viewBox="0 0 1000 520" role="img" aria-label="Печатная схема связей между концептами">
+          <g>
+            {edges.map(([a, b]) => {
+              const from = byId.get(a)!;
+              const to = byId.get(b)!;
+              return <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} class="ed-edge" />;
+            })}
+          </g>
+          <g>
+            {nodes.map((node) => (
+              <g>
+                <circle
+                  cx={node.x}
+                  cy={node.y}
+                  r={node.id === "K-01" ? 9 : 6}
+                  class={node.id === "K-01" ? "ed-node ed-node--active" : "ed-node"}
+                />
+                <text x={node.x} y={node.y + 25} text-anchor="middle" class="ed-node-code">{node.id}</text>
+                <text x={node.x} y={node.y + 37} text-anchor="middle" class="ed-node-label">{node.label}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div class="ed-atlas__legend">
+          <span style="--legend-color:#2547ff"><i></i>Контекст</span>
+          <span style="--legend-color:#ff5a3c"><i></i>Агенты</span>
+          <span style="--legend-color:#151613"><i></i>Инструменты</span>
+          <span style="--legend-color:#6b7a00"><i></i>Практика</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="ed-tokens" id="tokens">
+      <div class="ed-tokens__block">
+        <h3>Палитра</h3>
+        <div class="ed-swatches">
+          <span class="ed-swatch" style="background:#f1ecdf"></span>
+          <span class="ed-swatch" style="background:#151613"></span>
+          <span class="ed-swatch" style="background:#2547ff"></span>
+          <span class="ed-swatch" style="background:#ff5a3c"></span>
+          <span class="ed-swatch" style="background:#d8ff4f"></span>
+          <span class="ed-swatch" style="background:#6b7a00"></span>
+        </div>
+      </div>
+      <div class="ed-tokens__block">
+        <h3>Типографика</h3>
+        <div class="ed-type">
+          <div><b>Literata</b><span>заголовки / чтение</span></div>
+          <div><b style="font-family: var(--font-sans); font-size: 22px;">Inter Tight</b><span>интерфейс</span></div>
+          <div><b style="font-family: var(--font-mono); font-size: 15px; letter-spacing: .06em;">JETBRAINS MONO</b><span>шифры / метки</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</LabLayout>

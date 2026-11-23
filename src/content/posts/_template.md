@@ -1,8 +1,10 @@
 ---
 title: "Заголовок материала"
 description: "Одно предложение: какую проблему решает и что читатель получит."
+short: "Шаблон"
 date: 2026-01-01
 type: recipe
+domains: ["context"]
 tags: ["context", "agents"]
 level: easy
 time: "5 мин"

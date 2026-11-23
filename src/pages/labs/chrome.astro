@@ -1,0 +1,225 @@
+---
+import LabLayout from "../../layouts/LabLayout.astro";
+import "../../styles/labs/chrome.css";
+
+const domains = [
+  { id: "context", index: "01", name: "Контекст", tagline: "дымчатый хром", count: 4 },
+  { id: "agents", index: "02", name: "Агенты", tagline: "гранёный конус", count: 4 },
+  { id: "tools", index: "03", name: "Инструменты", tagline: "шлифованный металл", count: 4 },
+  { id: "practice", index: "04", name: "Практика", tagline: "масляная плёнка", count: 4 },
+];
+
+const nodes = [
+  { id: "K-01", x: 158, y: 165, color: "#7fe7d4", label: "Бюджет контекста" },
+  { id: "K-02", x: 300, y: 105, color: "#7fe7d4", label: "40-й шаг" },
+  { id: "K-03", x: 170, y: 300, color: "#7fe7d4", label: "Tool Search" },
+  { id: "K-04", x: 320, y: 345, color: "#7fe7d4", label: "TS: рецепт" },
+  { id: "A-01", x: 520, y: 140, color: "#b79cff", label: "CLAUDE.md" },
+  { id: "A-02", x: 620, y: 280, color: "#b79cff", label: "Spec-driven" },
+  { id: "A-03", x: 770, y: 160, color: "#ffb35c", label: "MCP за 20 минут" },
+  { id: "T-01", x: 860, y: 330, color: "#ffb35c", label: "Локальная модель" },
+  { id: "P-01", x: 590, y: 430, color: "#c7ff4f", label: "Критик" },
+];
+
+const edges: [string, string][] = [
+  ["K-01", "K-02"], ["K-01", "K-03"], ["K-01", "K-04"], ["K-01", "A-01"], ["K-01", "P-01"],
+  ["K-02", "A-01"], ["K-02", "A-03"], ["K-02", "A-02"], ["K-03", "K-04"], ["K-03", "A-01"],
+  ["K-03", "A-03"], ["K-03", "T-01"], ["K-04", "A-03"], ["K-04", "T-01"], ["A-01", "A-02"],
+  ["A-02", "A-03"], ["A-03", "T-01"], ["A-02", "P-01"],
+];
+
+const byId = new Map(nodes.map((node) => [node.id, node]));
+---
+
+<LabLayout title="Chrome" variant="chrome" description="Chrome / Fluid — жидкий металл, иридесценция, тёмное стекло и данные.">
+  <main class="ch-page">
+    <header class="ch-nav">
+      <a href="/" class="ch-brand">native<b>/</b><i aria-hidden="true"></i></a>
+      <nav aria-label="Навигация варианта">
+        <a href="#domains">Направления</a>
+        <a href="#concept">Карточка</a>
+        <a href="#atlas">Атлас</a>
+        <a href="#tokens">Токены</a>
+      </nav>
+      <span class="ch-nav__meta">chrome / fluid · 2026</span>
+    </header>
+
+    <section class="ch-hero">
+      <div>
+        <p class="ch-kicker"><b>chrome / fluid</b> · картотека знаний</p>
+        <h1><span class="ch-title-line">Знание не в ленте.</span><span class="ch-title-line">Оно в <em>картотеке</em>.</span></h1>
+        <p class="ch-lede">
+          Хаб об инженерии ПО с ИИ. Девять концептов, четыре направления,
+          связи и маршруты. Материал — не бумага, а жидкий металл, свет
+          и иридесценция; структура остаётся инженерной.
+        </p>
+        <div class="ch-actions">
+          <a href="#domains" class="ch-btn ch-btn--primary">Открыть каталог →</a>
+          <a href="#atlas" class="ch-btn ch-btn--glass">Смотреть атлас</a>
+        </div>
+        <div class="ch-stats">
+          <span class="ch-stat"><b>09</b>концептов</span>
+          <span class="ch-stat"><b>04</b>направления</span>
+          <span class="ch-stat"><b>25</b>связей</span>
+          <span class="ch-stat"><b>03</b>маршрута</span>
+        </div>
+      </div>
+
+      <div class="ch-object" aria-hidden="true">
+        <span class="ch-ring"></span>
+        <div class="ch-blob ch-blob--a"></div>
+        <div class="ch-blob ch-blob--b"></div>
+        <div class="ch-glass">
+          <div class="ch-glass__top"><span>K-01</span><span>контекст</span></div>
+          <h3>Бюджет контекста</h3>
+          <p>6 мин · легко · 4 связи</p>
+          <div class="ch-glass__line"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="ch-section" id="domains">
+      <header class="ch-sec-head">
+        <div class="ch-sec-head__left">
+          <span class="ch-sec-head__index">01</span>
+          <h2>Четыре поверхности.</h2>
+        </div>
+        <p>Направления как разные состояния металла и света. Никакой мимикрии под предмет — только поведение поверхности.</p>
+        <a href="#" class="ch-link">Весь каталог →</a>
+      </header>
+
+      <div class="ch-domains">
+        {domains.map((domain) => (
+          <a href="#" class={`ch-domain ch-domain--${domain.id}`}>
+            <div class="ch-domain__field" aria-hidden="true"></div>
+            <div class="ch-domain__body">
+              <span class="ch-domain__index">{domain.index} / 04</span>
+              <h3>{domain.name}</h3>
+              <p>{domain.tagline}</p>
+              <div class="ch-domain__foot">
+                <span>{String(domain.count).padStart(2, "0")} концепта</span>
+                <span aria-hidden="true">→</span>
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="ch-section ch-split" id="concept">
+      <article class="ch-concept">
+        <span class="ch-concept__code">K-01 · КОНТЕКСТ · РЕЦЕПТ</span>
+        <h3>Контекстное окно — это бюджет, а не склад</h3>
+        <p>
+          Пять правил упаковки контекста: что класть в окно, что выкидывать
+          без жалости и как понять, что вы уже утонули. Модель внимательнее
+          к началу и концу — середина окна проваливается первой.
+        </p>
+        <div class="ch-concept__meta">
+          <span>6 мин</span>
+          <span>легко</span>
+          <span>4 связи</span>
+          <span>маршрут R-01</span>
+        </div>
+        <div class="ch-concept__links">
+          <a href="#">Открыть карточку →</a>
+          <a href="#">Связи</a>
+          <a href="#">В атласе</a>
+        </div>
+      </article>
+
+      <aside class="ch-route">
+        <div class="ch-route__head"><span>R-01 · маршрут</span><span>2 / 5</span></div>
+        <h3>Первый контакт</h3>
+        <div class="ch-route__bar"><i style="width: 40%"></i></div>
+        <ol class="ch-route__steps">
+          <li data-done><i>01</i><span>CLAUDE.md</span><b>✓</b></li>
+          <li data-done><i>02</i><span>Бюджет контекста</span><b>✓</b></li>
+          <li><i>03</i><span>Spec-driven</span><b>→</b></li>
+          <li><i>04</i><span>MCP за 20 минут</span><b>→</b></li>
+          <li><i>05</i><span>40-й шаг</span><b>→</b></li>
+        </ol>
+      </aside>
+    </section>
+
+    <section class="ch-section" id="atlas">
+      <header class="ch-sec-head">
+        <div class="ch-sec-head__left">
+          <span class="ch-sec-head__index">02</span>
+          <h2>Карта как жидкость.</h2>
+        </div>
+        <p>Узлы светятся, связи отражают. Атлас — это не схема на бумаге, а поверхность данных.</p>
+      </header>
+
+      <div class="ch-atlas">
+        <div class="ch-atlas__bar">
+          <span><b>ATLAS</b> / 25 связей</span>
+          <div class="ch-atlas__chips">
+            <span>все</span><span>контекст</span><span>агенты</span><span>инструменты</span><span>практика</span>
+          </div>
+        </div>
+
+        <svg viewBox="0 0 1000 520" role="img" aria-label="Тёмная карта связей с хромированными линиями">
+          <defs>
+            <linearGradient id="chChromeLine" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#7fe7d4" stop-opacity="0.55" />
+              <stop offset="0.45" stop-color="#f2efe6" stop-opacity="0.38" />
+              <stop offset="1" stop-color="#b79cff" stop-opacity="0.55" />
+            </linearGradient>
+            <filter id="chGlow" x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur stdDeviation="5" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          <g>
+            {edges.map(([a, b]) => {
+              const from = byId.get(a)!;
+              const to = byId.get(b)!;
+              return <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} class="ch-edge" />;
+            })}
+          </g>
+          <g>
+            {nodes.map((node) => (
+              <g>
+                <circle cx={node.x} cy={node.y} r="17" fill={node.color} opacity="0.13" />
+                <circle cx={node.x} cy={node.y} r="6" fill={node.color} filter="url(#chGlow)" />
+                <text x={node.x} y={node.y + 26} text-anchor="middle" class="ch-node-code">{node.id}</text>
+                <text x={node.x} y={node.y + 39} text-anchor="middle" class="ch-node-label">{node.label}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+
+        <div class="ch-atlas__card">
+          <span>K-01 · КОНТЕКСТ</span>
+          <h3>Контекстное окно — это бюджет</h3>
+          <p>4 связи · 2 маршрута · 6 мин чтения</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="ch-tokens" id="tokens">
+      <div class="ch-tokens__block">
+        <p>палитра / surface</p>
+        <div class="ch-swatches">
+          <span class="ch-swatch" style="background:#050606"></span>
+          <span class="ch-swatch" style="background:linear-gradient(135deg,#f8fbfc,#5f6a70,#e8eef0)"></span>
+          <span class="ch-swatch" style="background:linear-gradient(135deg,#7fe7d4,#b79cff,#ff8fd8)"></span>
+          <span class="ch-swatch" style="background:#c7ff4f"></span>
+          <span class="ch-swatch" style="background:rgba(255,255,255,.08)"></span>
+        </div>
+      </div>
+      <div class="ch-tokens__block">
+        <p>типографика / ритм</p>
+        <div class="ch-type">
+          <div><b>Literata</b><span>чтение / заголовки</span></div>
+          <div><b style="font-family: var(--font-sans); font-size: 20px;">Inter Tight</b><span>интерфейс</span></div>
+          <div><b style="font-family: var(--font-mono); font-size: 14px; letter-spacing: .06em;">JETBRAINS MONO</b><span>шифры / метки</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</LabLayout>

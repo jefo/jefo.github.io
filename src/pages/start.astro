@@ -1,80 +1,142 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import Icon from "../components/Icon.astro";
+import RouteTicket from "../components/RouteTicket.astro";
 import { getCollection } from "astro:content";
-import { postHref } from "../lib/utils";
+import { DOMAINS, GLOSSARY, ROUTES } from "../data/hub";
+import { domainCounts, sortByDate } from "../lib/utils";
 
-const all = await getCollection("posts", ({ data }) => !data.draft);
-const bySlug = new Map(all.map((p) => [p.id, p]));
-
-const route = [
-  {
-    slug: "claude-md-recept",
-    title: "Соберите правила проекта",
-    text: "Один файл, семь секций. После него агент перестаёт спрашивать, как запускать тесты, и начинает соблюдать границы.",
-    meta: "рецепт · 7 мин",
-  },
-  {
-    slug: "context-budget",
-    title: "Научитесь упаковывать контекст",
-    text: "Что класть в окно, что выкидывать и почему «весь репозиторий» — худшая стратегия. Пять правил и раскладка бюджета.",
-    meta: "рецепт · 6 мин",
-  },
-  {
-    slug: "spec-driven",
-    title: "Пишите спеку до кода",
-    text: "Одна страница, которая закрывает зазор между «что я сказал» и «что я имел в виду». Шаблон, пример, метрики.",
-    meta: "гайд · 12 мин",
-  },
-  {
-    slug: "mcp-server-20-minut",
-    title: "Подключите свой инструмент",
-    text: "MCP-сервер на Node: список файлов, чтение заметок, подключение к клиенту. Двадцать минут до первого рабочего инструмента.",
-    meta: "гайд · 15 мин",
-  },
-  {
-    slug: "agent-40-shagov",
-    title: "Держите агента в форме",
-    text: "Почему длинные сессии деградируют и как короткие эпизоды + STATE.md спасают результат. Диагностика за две минуты.",
-    meta: "заметка · 8 мин",
-  },
-];
+const posts = sortByDate(await getCollection("posts", ({ data }) => !data.draft));
+const counts = domainCounts(posts);
+const firstRoute = ROUTES[0];
 ---
 
 <BaseLayout
-  title="С чего начать"
-  description="Маршрут на пять шагов: правила проекта, контекст, спека, инструменты и гигиена агентских сессий."
+  title="Старт"
+  description="Как пользоваться картотекой native/: маршруты, направления, атлас, словарь и легенда карточки."
 >
   <header class="page-head">
     <div class="wrap">
-      <h1 class="page-head__title">С чего начать</h1>
+      <p class="page-head__kicker"><b>картотека</b> / старт</p>
+      <h1 class="page-head__title">Как читать<br /><span class="thin">картотеку.</span></h1>
       <p class="page-head__lead">
-        Пять материалов, чтобы собрать рабочий процесс. Читайте по порядку —
-        каждый следующий опирается на предыдущий.
+        Здесь нет ленты, которую нужно догонять. Есть карточки, направления
+        и несколько путей. Выберите вход — остальное найдётся по связям.
       </p>
       <div class="page-head__meta">
-        <span><b>05</b> шагов</span>
-        <span><b>~48</b> минут</span>
+        <span><b>{String(posts.length).padStart(2, "0")}</b> концептов</span>
+        <span><b>{String(DOMAINS.length).padStart(2, "0")}</b> направления</span>
+        <span><b>{String(ROUTES.length).padStart(2, "0")}</b> маршрута</span>
+        <span><b>{String(GLOSSARY.length).padStart(2, "0")}</b> терминов</span>
       </div>
     </div>
   </header>
 
-  <div class="wrap">
-    <div class="path">
-      {route.map((step, i) => {
-        const post = bySlug.get(step.slug);
-        return (
-          <a href={post ? postHref(post) : "#"} class="path-step group">
-            <span class="path-step__n">{String(i + 1).padStart(2, "0")}</span>
-            <span>
-              <span class="path-step__title block group-hover:text-[var(--accent-text)] transition-colors">
-                {step.title}
-              </span>
-              <span class="path-step__text block">{step.text}</span>
-            </span>
-            <span class="path-step__meta">{step.meta}</span>
-          </a>
-        );
-      })}
+  <div class="wrap start-layout">
+    <div class="start-main">
+      <p class="start-lead">
+        Картотека — это способ хранить знание так, чтобы к нему можно было вернуться
+        через месяц. Каждая карточка отвечает на один вопрос, имеет шифр, направление
+        и связи с соседями. Не обязательно читать всё.
+      </p>
+
+      <div class="start-ways">
+        <a href="/paths" class="way-card">
+          <span class="way-card__icon"><Icon name="route" size={18} /></span>
+          <h2 class="way-card__title">По маршруту</h2>
+          <p class="way-card__text">
+            Если нужен рабочий процесс целиком. Три пути с порядком остановок
+            и прогрессом в браузере.
+          </p>
+        </a>
+        <a href="/catalog" class="way-card">
+          <span class="way-card__icon"><Icon name="grid" size={18} /></span>
+          <h2 class="way-card__title">По направлению</h2>
+          <p class="way-card__text">
+            Если ищете конкретную тему: контекст, агенты, инструменты или практика.
+            Фильтр по формату — внутри.
+          </p>
+        </a>
+        <a href="/atlas" class="way-card">
+          <span class="way-card__icon"><Icon name="map" size={18} /></span>
+          <h2 class="way-card__title">Через атлас</h2>
+          <p class="way-card__text">
+            Если хотите увидеть соседей и общие темы. Атлас показывает связи,
+            а не дату публикации.
+          </p>
+        </a>
+      </div>
+
+      <section class="start-section">
+        <h2 class="start-section__title">Легенда карточки</h2>
+        <div class="legend">
+          <div class="legend__item">
+            <span class="legend__mark">K-01</span>
+            <span class="legend__text"><strong>Шифр.</strong> Буква — направление, номер — место в картотеке.</span>
+          </div>
+          <div class="legend__item">
+            <span class="legend__mark">●</span>
+            <span class="legend__text"><strong>Направление.</strong> Цвет и подпись показывают, к каким материалам относится концепт.</span>
+          </div>
+          <div class="legend__item">
+            <span class="legend__mark">РЕЦЕПТ</span>
+            <span class="legend__text"><strong>Формат.</strong> Рецепт — применить сразу. Гайд — понять границы. Заметка — разобраться в явлении.</span>
+          </div>
+          <div class="legend__item">
+            <span class="legend__mark">6 МИН</span>
+            <span class="legend__text"><strong>Время и уровень.</strong> Оценка чтения и сложности, а не «длина статьи».</span>
+          </div>
+          <div class="legend__item">
+            <span class="legend__mark">СВЯЗИ</span>
+            <span class="legend__text"><strong>Соседи.</strong> Общие темы ведут к следующей карточке. Они же рисуют атлас.</span>
+          </div>
+          <div class="legend__item">
+            <span class="legend__mark">МАРШРУТ</span>
+            <span class="legend__text"><strong>Место в пути.</strong> Внизу карточки видно, в какие маршруты она входит.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="start-section">
+        <h2 class="start-section__title">Первый маршрут</h2>
+        <div class="ticket-grid" style="grid-template-columns: 1fr; margin-top: 14px;">
+          <RouteTicket route={firstRoute} posts={posts} />
+        </div>
+      </section>
     </div>
+
+    <aside class="start-side">
+      <div class="info-card">
+        <p class="info-card__k">что внутри</p>
+        <ul class="info-list">
+          <li><span>концепты</span><b>{String(posts.length).padStart(2, "0")}</b></li>
+          {DOMAINS.map((domain) => (
+            <li><span>{domain.name}</span><b>{String(counts[domain.id]).padStart(2, "0")}</b></li>
+          ))}
+          <li><span>маршруты</span><b>{String(ROUTES.length).padStart(2, "0")}</b></li>
+          <li><span>термины</span><b>{String(GLOSSARY.length).padStart(2, "0")}</b></li>
+        </ul>
+      </div>
+
+      <div class="info-card">
+        <p class="info-card__k">принцип</p>
+        <h3 class="info-card__title">Не блог.</h3>
+        <p class="info-card__text">
+          Пост живёт в ленте сутки. Карточка — пока не устареет знание.
+          Поэтому здесь нет «свежего» вперёд: только шифры, направления и связи.
+        </p>
+        <ul class="principle-list" style="margin-top: 14px;">
+          <li><b>Концепт, не пост.</b> Одна карточка — один вопрос.</li>
+          <li><b>Связи, не даты.</b> Рядом — то, что связано по смыслу.</li>
+          <li><b>Маршрут, не архив.</b> Порядок важнее объёма.</li>
+        </ul>
+      </div>
+
+      <a href="/catalog" class="home-start" style="padding: 18px;">
+        <p class="kicker kicker--accent">каталог</p>
+        <h3 class="home-start__title" style="font-size: 30px;">Все карточки<br />в одном месте.</h3>
+        <span class="home-start__go" style="margin-top: 18px;">Открыть каталог <span aria-hidden="true">→</span></span>
+      </a>
+    </aside>
   </div>
 </BaseLayout>

@@ -1,0 +1,44 @@
+---
+import Icon from "./Icon.astro";
+import { plural } from "../lib/utils";
+import type { Domain } from "../data/hub";
+
+interface Props {
+  domain: Domain;
+  count: number;
+  index?: number;
+}
+
+const { domain, count, index = 0 } = Astro.props;
+const materialLabel = {
+  felt: "фетр / 01",
+  steel: "сталь / 02",
+  rubber: "резина / 03",
+  kraft: "крафт / 04",
+}[domain.material];
+
+const texture = `url('/textures/material-${domain.material}.svg')`;
+---
+
+<a
+  href={`/domains/${domain.id}`}
+  class:list={["plate", `plate--${domain.material}`]}
+  style={`--domain-color: ${domain.color}; --plate-texture: ${texture};`}
+  data-index={index}
+>
+  <div class="plate__material">
+    <span class="plate__icon" aria-hidden="true"><Icon name={domain.icon} size={20} /></span>
+    <span class="plate__index" aria-hidden="true">{domain.index}</span>
+    <span class="plate__material-label" aria-hidden="true">{materialLabel}</span>
+    <span class="plate__ghost" aria-hidden="true">{domain.index}</span>
+  </div>
+  <div class="plate__label">
+    <div class="plate__head">
+      <h3 class="plate__name">{domain.name}</h3>
+      <span class="plate__count">{count} {plural(count, ["концепт", "концепта", "концептов"])}</span>
+    </div>
+    <p class="plate__tagline">{domain.tagline}</p>
+    <p class="plate__desc">{domain.description}</p>
+    <span class="plate__go">Открыть направление <span aria-hidden="true">→</span></span>
+  </div>
+</a>

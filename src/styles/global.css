@@ -3210,7 +3210,6 @@
 }
 
 /* на широком экране — поле для колонки */
-*/
 @media (min-width: 980px) {
   .post-aside {
     border-left: 1px solid var(--line);

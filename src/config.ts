@@ -1,11 +1,11 @@
 export const SITE = {
   /** Короткое имя бренда. Меняется в одном месте — подставляется в шапку, подвал, meta. */
-  title: "native/",
+  title: "native/ — картотека знаний",
   /** Часть после слэша в логотипе. */
   mark: "native",
-  tagline: "Полевой журнал об инженерии ПО",
+  tagline: "Картотека инженерии ПО",
   description:
-    "native/ — журнал об инженерии ПО в эпоху супер-интеллекта. Разбираем ИИ-инструменты, код и инженерное мышление. Миссия — повышение ИИ-грамотности.",
+    "native/ — хаб знаний об инженерии ПО с ИИ. Не лента, а картотека: концепты, связи, маршруты, атлас и словарь.",
   mission: "повышение ИИ-грамотности",
   url: "https://jefo.github.io",
   author: "Евгений Кайзин",
@@ -25,11 +25,11 @@ export const SITE = {
 };
 
 export const NAV = [
-  { href: "/recipes", label: "Рецепты", note: "приёмы и конфиги" },
-  { href: "/guides", label: "Гайды", note: "разборы и процессы" },
-  { href: "/notes", label: "Архив", note: "все материалы" },
-  { href: "/start", label: "Старт", note: "маршрут на пять шагов" },
-  { href: "/about", label: "Журнал", note: "о журнале" },
+  { href: "/catalog", label: "Каталог", note: "все концепты картотеки" },
+  { href: "/paths", label: "Маршруты", note: "куда идти и в каком порядке" },
+  { href: "/atlas", label: "Атлас", note: "карта связей между концептами" },
+  { href: "/glossary", label: "Словарь", note: "термины и короткие определения" },
+  { href: "/start", label: "Старт", note: "как пользоваться картотекой" },
 ];
 
 export const TYPE_META = {
@@ -38,21 +38,21 @@ export const TYPE_META = {
     pluralLabel: "рецепты",
     plural: "recipes",
     href: "/recipes",
-    color: "var(--tok-str)",
+    color: "var(--dom-tools)",
   },
   guide: {
     label: "Гайд",
     pluralLabel: "гайды",
     plural: "guides",
     href: "/guides",
-    color: "var(--tok-fn)",
+    color: "var(--dom-agents)",
   },
   note: {
     label: "Заметка",
     pluralLabel: "заметки",
     plural: "notes",
     href: "/notes",
-    color: "var(--tok-num)",
+    color: "var(--dom-context)",
   },
 } as const;
 

@@ -14,103 +14,105 @@ const links = [
   { label: "Telegram", href: SITE.socials.telegram, icon: "telegram" as const },
   { label: "GitHub", href: SITE.socials.github, icon: "github" as const },
   { label: "X / Twitter", href: SITE.socials.x, icon: "x" as const },
-].filter((l) => !isPlaceholderLink(l.href));
+].filter((link) => !isPlaceholderLink(link.href));
 
 const emailConfigured = !SITE.email.includes("native.blog");
-
-const aboutDescription = `native/ — журнал об инженерии ПО в эпоху супер-интеллекта. Миссия — ${SITE.mission}. Автор — ${SITE.author}.`;
 ---
 
 <BaseLayout
-  title="О журнале"
-  description={aboutDescription}
+  title="О картотеке"
+  description={`native/ — хаб знаний об инженерии ПО с ИИ. Картотека концептов, связей и маршрутов. Автор — ${SITE.author}.`}
 >
   <header class="page-head">
     <div class="wrap">
-      <h1 class="page-head__title">Инженерия<br />в эпоху супер-интеллекта.</h1>
+      <p class="page-head__kicker"><b>native/</b> / о картотеке</p>
+      <h1 class="page-head__title">Знание, которое<br /><span class="thin">не утекает в ленту.</span></h1>
       <p class="page-head__lead">
-        native/ — независимый журнал о том, как строить софт вместе с ИИ. Миссия —
-        {SITE.mission}: для инженеров и для всех, кто хочет перенять инженерное мышление.
+        native/ — независимый хаб об инженерии ПО в эпоху супер-интеллекта.
+        Не журнал с архивом, а картотека: концепты, связи и маршруты. Миссия — {SITE.mission}.
       </p>
     </div>
   </header>
 
   <div class="wrap about-grid">
-    <div class="prose">
+    <div class="prose about-prose">
       <p>
-        <strong>Миссия.</strong> ИИ-грамотность — это не умение писать промпты. Это
-        понимание, как устроены инструменты, где они ломаются и как проверить результат.
-        Журнал переводит это на язык практики.
+        <strong>Зачем картотека.</strong> Блог заканчивается там, где заканчивается лента.
+        Через месяц вы помните, что «была хорошая статья про контекст», но не помните
+        ни заголовка, ни вывода. Картотека устроена иначе: у каждой карточки есть шифр,
+        направление, формат и связи. Её можно найти, сравнить и встроить в маршрут.
       </p>
       <p>
-        native/ — журнал, а не личный дневник. Обложка принадлежит журналу, автор — его
-        голос.
+        native/ начинался как полевой журнал. Со временем стало понятно: ценность
+        не в хронологии, а в структуре. Поэтому материалы переехали в картотеку,
+        а лента осталась только в RSS.
       </p>
 
-      <h2>Что здесь есть</h2>
+      <h2>Три принципа</h2>
+      <ul>
+        <li><strong>Концепт, а не пост.</strong> Одна карточка отвечает на один вопрос. У неё есть границы, уровень и время чтения.</li>
+        <li><strong>Связи, а не даты.</strong> Рядом стоят концепты с общими темами, а не «предыдущий/следующий по календарю».</li>
+        <li><strong>Маршрут, а не архив.</strong> Если нужно освоить тему целиком, есть путь. Если нужна одна карточка — каталог и атлас.</li>
+      </ul>
+
+      <h2>Как устроен хаб</h2>
       <p>
-        Полные версии шортсов: рецепты, гайды и заметки. С кодом, ограничениями
-        и чек-листами. Страницы рассчитаны на возврат через месяц — без «как вы помните,
-        в прошлом выпуске».
+        Четыре направления: <strong>Контекст</strong>, <strong>Агенты</strong>,
+        <strong>Инструменты</strong> и <strong>Практика</strong>. У каждого — свой
+        материал, цвет и набор карточек. Концепт может лежать на пересечении:
+        например, tool search — это и контекст, и инструменты.
       </p>
       <p>
-        Это <strong>бортжурнал</strong>: что попробовал, что сработало, что сломалось.
-        С датами и обновлениями.
+        <strong>Маршруты</strong> задают порядок. <strong>Атлас</strong> показывает
+        связи по общим темам. <strong>Словарь</strong> объясняет термины и ведёт
+        к карточкам. <strong>Каталог</strong> — линейный вход, если не хочется
+        выбирать путь.
       </p>
 
       <h2>Кто делает</h2>
       <p>
-        Автор журнала — <strong>{SITE.author}</strong>, full-stack-разработчик.
-        15 лет в деле — и не собирается останавливаться. Делает собственное ПО
-        и показывает процесс: как ИИ-инструменты меняют разработку, не заменяя
-        инженерное мышление.
+        Автор — <strong>{SITE.author}</strong>, full-stack-разработчик. 15 лет в деле
+        и не собирается останавливаться. Делает собственное ПО и показывает процесс:
+        как ИИ-инструменты меняют разработку, не заменяя инженерное мышление.
       </p>
       <p>
         YouTube-канал — об инженерии ПО в эпоху супер-интеллекта. Он не только для
         инженеров: инженерное мышление можно перенять, даже если вы не пишете код.
       </p>
 
-      <h2>Как устроены материалы</h2>
-      <ul>
-        <li>В рецепте — код или команды, которые можно применить сразу.</li>
-        <li>В гайде — границы: где решение ломается.</li>
-        <li>В конце — чек-лист, а не «удачи».</li>
-      </ul>
+      <h2>Чего здесь не будет</h2>
       <p>
-        Если нашли ошибку — напишите: исправлю и допишу в грабли.
+        Новостной повестки, «10 промптов, которые изменят всё», гонки за моделями
+        и контента ради контента. Карточка появляется, когда есть что зафиксировать,
+        и обновляется, когда знание устаревает. Если нашли ошибку — напишите.
       </p>
     </div>
 
     <aside class="about-side">
-      <div class="about-card">
+      <div class="info-card">
         <div class="about-mark" aria-hidden="true">n<span>/</span></div>
-        <p class="label">Автор журнала</p>
+        <p class="label">Автор картотеки</p>
         <p class="about-author-name">{SITE.author}</p>
-        <ul class="about-facts mt-3">
-          {facts.map((f) => (
-            <li><span>{f.k}</span><b class="font-normal text-[var(--ink)]">{f.v}</b></li>
+        <ul class="about-facts">
+          {facts.map((fact) => (
+            <li><span>{fact.k}</span><b style="font-weight: 400; color: var(--ink);">{fact.v}</b></li>
           ))}
         </ul>
       </div>
 
-      <div class="about-card">
-        <p class="label mb-3">Связаться</p>
-        <ul class="grid gap-2.5">
-          {links.map((l) => (
+      <div class="info-card">
+        <p class="info-card__k">связаться</p>
+        <ul class="info-list">
+          {links.map((link) => (
             <li>
-              <a
-                href={l.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="footer__link items-center"
-              >
-                <Icon name={l.icon} size={15} /> {l.label}
+              <a href={link.href} target="_blank" rel="noopener noreferrer" class="footer__link" style="align-items: center;">
+                <Icon name={link.icon} size={15} /> {link.label}
               </a>
             </li>
           ))}
           {emailConfigured && (
             <li>
-              <a href={`mailto:${SITE.email}`} class="footer__link items-center">
+              <a href={`mailto:${SITE.email}`} class="footer__link" style="align-items: center;">
                 <Icon name="link" size={15} /> {SITE.email}
               </a>
             </li>
@@ -118,14 +120,23 @@ const aboutDescription = `native/ — журнал об инженерии ПО 
         </ul>
       </div>
 
-      <div class="about-card">
-        <p class="label mb-2">Подписка</p>
-        <p class="text-[13px] leading-relaxed text-[var(--ink-2)]">
-          Новые материалы — в RSS и Telegram.
+      <div class="info-card">
+        <p class="info-card__k">подписка</p>
+        <h3 class="info-card__title">RSS вместо алгоритма.</h3>
+        <p class="info-card__text">
+          Новые карточки — в RSS. Никаких писем «вы давно не читали» и трекеров.
         </p>
-        <a href="/rss.xml" class="btn btn--ghost mt-3 w-full justify-start px-0">
-          <Icon name="rss" size={15} /> RSS
+        <a href="/rss.xml" class="btn btn--small" style="margin-top: 14px;">
+          <Icon name="rss" size={14} /> RSS
         </a>
+      </div>
+
+      <div class="info-card">
+        <p class="info-card__k">colophon</p>
+        <p class="info-card__text">
+          Astro, Tailwind, OKLCH. Бумага, фетр, сталь, резина и крафт — CSS и SVG.
+          Текст — живой HTML, не картинка.
+        </p>
       </div>
     </aside>
   </div>

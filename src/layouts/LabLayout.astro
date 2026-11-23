@@ -1,0 +1,46 @@
+---
+import "../styles/labs/lab.css";
+
+interface Props {
+  title: string;
+  variant: "signal" | "editorial" | "chrome" | "index";
+  description?: string;
+}
+
+const { title, variant, description = "Лаборатория визуальных языков native/." } = Astro.props;
+
+const variants = [
+  { id: "signal", label: "Signal" },
+  { id: "editorial", label: "Editorial" },
+  { id: "chrome", label: "Chrome" },
+] as const;
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title} — lab / native/</title>
+    <meta name="description" content={description} />
+  </head>
+  <body class={`lab lab--${variant}`}>
+    <slot />
+
+    <nav class="labbar" aria-label="Лаборатория вариантов">
+      <span class="labbar__k">LAB</span>
+      <a
+        href="/labs"
+        aria-current={["/labs", "/labs/"].includes(Astro.url.pathname) ? "page" : undefined}
+      >Все</a>
+      {variants.map((item) => (
+        <a
+          href={`/labs/${item.id}`}
+          aria-current={variant === item.id ? "page" : undefined}
+        >{item.label}</a>
+      ))}
+      <a href="/" class="labbar__hub">← В хаб</a>
+    </nav>
+  </body>
+</html>

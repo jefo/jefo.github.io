@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="base" x1="0" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#333b35"/>
+      <stop offset="0.5" stop-color="#272d28"/>
+      <stop offset="1" stop-color="#191e1b"/>
+    </linearGradient>
+    <radialGradient id="light" cx="28%" cy="8%" r="92%">
+      <stop offset="0" stop-color="#aebca7" stop-opacity="0.26"/>
+      <stop offset="0.4" stop-color="#66735f" stop-opacity="0.05"/>
+      <stop offset="1" stop-color="#080b09" stop-opacity="0.4"/>
+    </radialGradient>
+    <filter id="stone" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.48" numOctaves="5" seed="17" stitchTiles="stitch"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.2 0"/>
+    </filter>
+    <filter id="speck" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="2.2" numOctaves="1" seed="31" stitchTiles="stitch"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.5  0 0 0 0 0.55  0 0 0 0 0.48  0 0 0 0.1 0"/>
+    </filter>
+  </defs>
+  <rect width="1400" height="900" fill="url(#base)"/>
+  <rect width="1400" height="900" fill="url(#light)"/>
+  <rect width="1400" height="900" filter="url(#stone)"/>
+  <rect width="1400" height="900" filter="url(#speck)"/>
+</svg>

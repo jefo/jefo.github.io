@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import PostRow from "../../components/PostRow.astro";
+import ConceptCard from "../../components/ConceptCard.astro";
 import { getCollection } from "astro:content";
 import { groupByYear, plural, sortByDate } from "../../lib/utils";
 
@@ -17,32 +17,36 @@ const filters = [
 
 <BaseLayout
   title="Архив"
-  description="Все материалы блога: рецепты, гайды и заметки. Фильтр по формату, поиск по темам."
+  description="Все карточки native/ по датам: рецепты, гайды и заметки. Фильтр по формату."
 >
   <header class="page-head">
     <div class="wrap">
-      <h1 class="page-head__title">Архив</h1>
+      <p class="page-head__kicker"><b>картотека</b> / архив</p>
+      <h1 class="page-head__title">Архив<br /><span class="thin">по датам.</span></h1>
       <p class="page-head__lead">
-        Всё, что вышло — от коротких рецептов до длинных разборов. Если не знаете,
-        с чего начать, — <a href="/start" class="underline decoration-[var(--accent-text)] underline-offset-4">маршрут на пять шагов</a>.
+        Хронология — не главный вход в картотеку. Но иногда нужно вспомнить,
+        что вышло в ноябре. Для смысловых связей есть <a href="/atlas">атлас</a>
+        и <a href="/catalog">каталог</a>.
       </p>
+      <div class="page-head__meta">
+        <span><b>{String(posts.length).padStart(2, "0")}</b> карточек</span>
+        <span><b>{String(years.length).padStart(2, "0")}</b> года</span>
+      </div>
     </div>
   </header>
 
-  <div class="wrap">
+  <div class="wrap section">
     <div class="filters" role="group" aria-label="Фильтр по формату">
-      {filters.map((f, i) => (
+      {filters.map((filter, index) => (
         <button
           class="filter"
           type="button"
-          data-filter={f.key}
-          aria-pressed={i === 0 ? "true" : "false"}
-        >
-          {f.label}
-        </button>
+          data-filter={filter.key}
+          aria-pressed={index === 0 ? "true" : "false"}
+        >{filter.label}</button>
       ))}
-      <span class="mono ml-auto text-[10px] uppercase tracking-wider text-[var(--muted)]" id="filter-count">
-        {posts.length} {plural(posts.length, ["материал", "материала", "материалов"])}
+      <span class="mono" style="margin-left:auto; font-size:10px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted);" id="filter-count">
+        {posts.length} {plural(posts.length, ["карточка", "карточки", "карточек"])}
       </span>
     </div>
 
@@ -50,8 +54,8 @@ const filters = [
       {years.map(({ year, posts: yearPosts }) => (
         <section data-year={String(year)}>
           <div class="year-head"><span>{year}</span></div>
-          <div class="post-list">
-            {yearPosts.map((post) => <PostRow post={post} />)}
+          <div class="concept-grid">
+            {yearPosts.map((post) => <ConceptCard post={post} />)}
           </div>
         </section>
       ))}
@@ -61,7 +65,7 @@ const filters = [
 
 <script>
   const buttons = [...document.querySelectorAll<HTMLButtonElement>("[data-filter]")];
-  const rows = [...document.querySelectorAll<HTMLElement>("#archive .entry")];
+  const cards = [...document.querySelectorAll<HTMLElement>("#archive .concept-card")];
   const sections = [...document.querySelectorAll<HTMLElement>("#archive section")];
   const countEl = document.getElementById("filter-count");
 
@@ -74,21 +78,27 @@ const filters = [
   }
 
   function apply(filter: string) {
-    buttons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.filter === filter)));
+    buttons.forEach((button) =>
+      button.setAttribute("aria-pressed", String(button.dataset.filter === filter)),
+    );
 
     let visible = 0;
-    rows.forEach((row) => {
-      const show = filter === "all" || row.dataset.type === filter;
-      row.hidden = !show;
-      if (show) visible++;
+    cards.forEach((card) => {
+      const show = filter === "all" || card.dataset.type === filter;
+      card.hidden = !show;
+      if (show) visible += 1;
     });
 
     sections.forEach((section) => {
-      const any = [...section.querySelectorAll<HTMLElement>(".entry")].some((r) => !r.hidden);
-      section.hidden = !any;
+      section.hidden = ![...section.querySelectorAll<HTMLElement>(".concept-card")].some(
+        (card) => !card.hidden,
+      );
     });
 
-    if (countEl) countEl.textContent = `${visible} ${plural(visible, ["материал", "материала", "материалов"])}`;
+    if (countEl) {
+      countEl.textContent = `${visible} ${plural(visible, ["карточка", "карточки", "карточек"])}`;
+    }
+
     const url = new URL(location.href);
     if (filter === "all") url.searchParams.delete("type");
     else url.searchParams.set("type", filter);

@@ -1,0 +1,28 @@
+---
+interface Props {
+  index?: string;
+  kicker?: string;
+  title: string;
+  sub?: string;
+  href?: string;
+  linkLabel?: string;
+}
+
+const { index, kicker = "картотека", title, sub, href, linkLabel = "Смотреть все" } = Astro.props;
+---
+
+<header class="sec-head">
+  <div class="sec-head__main">
+    <p class="sec-head__kicker">
+      {index && <span class="sec-head__index">{index}</span>}
+      <span>{kicker}</span>
+    </p>
+    <h2 class="sec-title">{title}</h2>
+    {sub && <p class="sec-sub">{sub}</p>}
+  </div>
+  {href && (
+    <a href={href} class="sec-link">
+      {linkLabel} <span aria-hidden="true">→</span>
+    </a>
+  )}
+</header>

@@ -1,0 +1,196 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import RouteTicket from "../../components/RouteTicket.astro";
+import SectionHead from "../../components/SectionHead.astro";
+import { DOMAIN_BY_ID, ROUTES } from "../../data/hub";
+import {
+  conceptCode,
+  plural,
+  postHref,
+  postMinutes,
+  primaryDomain,
+  routeDuration,
+  routePosts,
+  sortByDate,
+  type Post,
+} from "../../lib/utils";
+
+export async function getStaticPaths() {
+  const posts = sortByDate(await getCollection("posts", ({ data }) => !data.draft));
+  return ROUTES.map((route) => ({
+    params: { slug: route.slug },
+    props: { route, posts },
+  }));
+}
+
+const { route, posts } = Astro.props as {
+  route: (typeof ROUTES)[number];
+  posts: Post[];
+};
+const domain = DOMAIN_BY_ID[route.domain];
+const stops = routePosts(route.slug, posts);
+const minutes = routeDuration(route.slug, posts);
+const first = stops[0]?.post;
+const others = ROUTES.filter((item) => item.slug !== route.slug);
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  name: route.title,
+  description: route.description,
+  inLanguage: "ru-RU",
+  teaches: route.outcomes,
+  timeRequired: `PT${minutes}M`,
+  isPartOf: { "@type": "WebSite", name: "native/", url: "https://jefo.github.io" },
+};
+---
+
+<BaseLayout
+  title={route.title}
+  description={route.description}
+  jsonLd={jsonLd}
+>
+  <header class="route-head" style={`--domain-color: ${domain.color};`}>
+    <div class="wrap route-head__grid">
+      <div>
+        <nav class="crumbs" aria-label="Хлебные крошки">
+          <a href="/paths">маршруты</a><span>/</span><span aria-current="page">{route.code}</span>
+        </nav>
+        <div class="route-head__kicker">
+          <b>{route.code}</b>
+          <span>{stops.length} {plural(stops.length, ["остановка", "остановки", "остановок"])}</span>
+          <span>~{minutes} мин</span>
+          <span>{domain.name}</span>
+        </div>
+        <h1 class="route-title">{route.title}</h1>
+        <p class="route-subtitle">{route.subtitle}</p>
+        <p class="route-desc">{route.description}</p>
+        <div class="route-head__actions">
+          {first && (
+            <a href={postHref(first)} class="btn btn--primary">Начать маршрут <span aria-hidden="true">→</span></a>
+          )}
+          <button class="btn btn--ghost" type="button" id="route-reset">Сбросить прогресс</button>
+        </div>
+      </div>
+
+      <aside class="route-card" aria-label="Прогресс маршрута">
+        <p class="route-card__k">прогресс / {route.code}</p>
+        <div class="route-progress">
+          <b id="route-done">0</b>
+          <span>из {stops.length}</span>
+        </div>
+        <div class="route-progress__bar" aria-hidden="true"><i id="route-bar"></i></div>
+        <p class="route-card__k" style="margin-top: 14px;">что вы освоите</p>
+        <ul class="route-card__outcomes">
+          {route.outcomes.map((outcome) => <li>{outcome}</li>)}
+        </ul>
+      </aside>
+    </div>
+  </header>
+
+  <div class="wrap route-body">
+    <ol class="route-steps" id="route-steps" data-route-slug={route.slug} data-route-total={stops.length}>
+      {stops.map(({ post, note }, index) => {
+        const postDomain = primaryDomain(post);
+        return (
+          <li class="route-step" data-step={post.id}>
+            <span class="route-step__marker" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+            <div class="route-step__body">
+              <div class="route-step__meta">
+                <code>{conceptCode(post)}</code>
+                <span>{postDomain.name}</span>
+                <span>{postMinutes(post)}</span>
+                <span>{post.data.short ?? ""}</span>
+              </div>
+              <h2 class="route-step__title"><a href={postHref(post)}>{post.data.title}</a></h2>
+              <p class="route-step__note">{note}</p>
+              <p class="route-step__desc">{post.data.description}</p>
+              <div class="route-step__foot">
+                <a href={postHref(post)} class="btn btn--small">Открыть карточку</a>
+                <button
+                  class="route-check"
+                  type="button"
+                  data-route-check={post.id}
+                  aria-pressed="false"
+                ><span aria-hidden="true"></span> Прочитано</button>
+              </div>
+            </div>
+          </li>
+        );
+      })}
+    </ol>
+
+    <section class="domain-section" style="margin-top: clamp(48px, 6vw, 76px);">
+      <SectionHead
+        index="—"
+        kicker="рядом"
+        title="Другие маршруты"
+        sub="Если этот путь не про вашу задачу — посмотрите соседний."
+        href="/paths"
+        linkLabel="Все маршруты"
+      />
+      <div class="ticket-grid">
+        {others.map((item, index) => <RouteTicket route={item} posts={posts} index={index} />)}
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  const steps = document.getElementById("route-steps");
+  const slug = steps?.dataset.routeSlug;
+  const total = Number(steps?.dataset.routeTotal ?? 0);
+  const doneEl = document.getElementById("route-done");
+  const barEl = document.getElementById("route-bar");
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>("[data-route-check]")];
+  const reset = document.getElementById("route-reset");
+  const key = slug ? `native:route:${slug}` : "";
+
+  function read(): string[] {
+    if (!key) return [];
+    try {
+      const value = JSON.parse(localStorage.getItem(key) ?? "[]");
+      return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function paint() {
+    const done = new Set(read());
+    buttons.forEach((button) => {
+      const id = button.dataset.routeCheck ?? "";
+      const pressed = done.has(id);
+      button.setAttribute("aria-pressed", String(pressed));
+      button.closest<HTMLElement>(".route-step")?.setAttribute("data-done", String(pressed));
+    });
+    if (doneEl) doneEl.textContent = String(done.size);
+    if (barEl) barEl.style.width = `${total ? (done.size / total) * 100 : 0}%`;
+  }
+
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const id = button.dataset.routeCheck ?? "";
+      const done = new Set(read());
+      if (done.has(id)) done.delete(id);
+      else done.add(id);
+      try {
+        localStorage.setItem(key, JSON.stringify([...done]));
+      } catch {
+        /* noop */
+      }
+      paint();
+    });
+  });
+
+  reset?.addEventListener("click", () => {
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      /* noop */
+    }
+    paint();
+  });
+
+  paint();
+</script>

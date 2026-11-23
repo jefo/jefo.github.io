@@ -1,0 +1,390 @@
+---
+import { ATLAS_LABELS, ATLAS_POSITIONS, DOMAINS, DOMAIN_BY_ID } from "../data/hub";
+import {
+  conceptCode,
+  postDomains,
+  postHref,
+  primaryDomain,
+  tagConnections,
+  type Post,
+} from "../lib/utils";
+
+interface Props {
+  posts: Post[];
+  mode?: "full" | "mini";
+}
+
+const { posts, mode = "full" } = Astro.props;
+const isMini = mode === "mini";
+
+const labelPos: Record<string, { dx: number; dy: number; anchor: "start" | "middle" | "end" }> = {
+  "context-budget": { dx: 0, dy: 30, anchor: "middle" },
+  "agent-40-shagov": { dx: 0, dy: -19, anchor: "middle" },
+  "tool-search-mcp": { dx: 0, dy: 30, anchor: "middle" },
+  "tool-search-5-minut": { dx: 0, dy: 32, anchor: "middle" },
+  "claude-md-recept": { dx: 0, dy: -19, anchor: "middle" },
+  "spec-driven": { dx: 20, dy: 5, anchor: "start" },
+  "mcp-server-20-minut": { dx: 0, dy: -20, anchor: "middle" },
+  "local-llm-16gb": { dx: 0, dy: 30, anchor: "middle" },
+  "prompt-kritik": { dx: 0, dy: 31, anchor: "middle" },
+};
+
+const edges = tagConnections(posts).map((edge) => ({
+  a: edge.a.id,
+  b: edge.b.id,
+  weight: edge.weight,
+}));
+
+const degree = new Map<string, number>();
+for (const edge of edges) {
+  degree.set(edge.a, (degree.get(edge.a) ?? 0) + 1);
+  degree.set(edge.b, (degree.get(edge.b) ?? 0) + 1);
+}
+
+const nodes = posts.map((post) => {
+  const domain = primaryDomain(post);
+  const pos = ATLAS_POSITIONS[post.id] ?? { x: 550, y: 350 };
+  const ring = labelPos[post.id] ?? { dx: 0, dy: 26, anchor: "middle" as const };
+  return {
+    id: post.id,
+    code: conceptCode(post),
+    label: post.data.short ?? ATLAS_LABELS[post.id] ?? post.data.title,
+    title: post.data.title,
+    desc: post.data.description,
+    url: postHref(post),
+    domain: domain.id,
+    domainName: domain.name,
+    domainColor: domain.color,
+    domains: postDomains(post).map((d) => ({
+      id: d.id,
+      name: d.name,
+      color: d.color,
+    })),
+    x: pos.x,
+    y: pos.y,
+    dx: ring.dx,
+    dy: ring.dy,
+    anchor: ring.anchor,
+    r: 12 + Math.min(8, degree.get(post.id) ?? 0),
+  };
+});
+
+const rings = [
+  { id: "context", cx: 255, cy: 265, rx: 215, ry: 225, lx: 78, ly: 76 },
+  { id: "agents", cx: 615, cy: 225, rx: 180, ry: 165, lx: 505, ly: 86 },
+  { id: "tools", cx: 825, cy: 270, rx: 215, ry: 200, lx: 890, ly: 94 },
+  { id: "practice", cx: 590, cy: 510, rx: 195, ry: 120, lx: 475, ly: 432 },
+].map((ring) => ({ ...ring, domain: DOMAIN_BY_ID[ring.id as keyof typeof DOMAIN_BY_ID] }));
+
+const initial = nodes.find((node) => node.id === "context-budget") ?? nodes[0];
+const atlasData = { nodes, edges };
+const edgeCount = edges.length;
+---
+
+{isMini ? (
+  <a class="atlas-mini" href="/atlas" aria-label="Открыть атлас связей">
+    <div class="atlas-mini__inner">
+      <div class="atlas-mini__map">
+        <svg viewBox="0 0 1100 700" role="img" aria-label="Мини-карта связей между концептами">
+          <g>
+            {edges.map((edge) => {
+              const a = nodes.find((n) => n.id === edge.a)!;
+              const b = nodes.find((n) => n.id === edge.b)!;
+              return (
+                <line
+                  x1={a.x}
+                  y1={a.y}
+                  x2={b.x}
+                  y2={b.y}
+                  stroke="oklch(0.85 0.02 100 / 0.2)"
+                  stroke-width={edge.weight >= 3 ? 1.8 : 1}
+                />
+              );
+            })}
+          </g>
+          <g>
+            {nodes.map((node) => (
+              <g>
+                <circle
+                  cx={node.x}
+                  cy={node.y}
+                  r={node.r}
+                  fill={node.domainColor}
+                  stroke="oklch(0.96 0.01 95 / 0.75)"
+                  stroke-width="1.5"
+                />
+                <text
+                  x={node.x}
+                  y={node.y + 3}
+                  text-anchor="middle"
+                  font-family="ui-monospace, monospace"
+                  font-size="8"
+                  font-weight="600"
+                  fill="oklch(0.98 0.01 95)"
+                >{node.code}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+      </div>
+      <div class="atlas-mini__copy">
+        <p class="atlas-mini__k">атлас / {edgeCount} связей</p>
+        <p class="atlas-mini__title">Увидеть<br />соседей.</p>
+        <p class="atlas-mini__text">
+          Карта концептов и общих тем. Толщина линии — сила связи. Найдите не статью,
+          а следующий шаг.
+        </p>
+        <div class="atlas-mini__legend">
+          {DOMAINS.map((domain) => (
+            <span style={`--domain-color: ${domain.color};`}><i></i>{domain.name}</span>
+          ))}
+        </div>
+        <span class="atlas-mini__link">Открыть атлас <span aria-hidden="true">→</span></span>
+      </div>
+    </div>
+  </a>
+) : (
+  <section class="atlas-panel" aria-labelledby="atlas-title">
+    <div class="atlas-panel__bar">
+      <p class="atlas-panel__title" id="atlas-title"><b>ATLAS</b> карта связей</p>
+      <div class="atlas-filters" role="group" aria-label="Фильтр по направлению">
+        <button class="atlas-filter" type="button" data-atlas-filter="all" aria-pressed="true">Все</button>
+        {DOMAINS.map((domain) => (
+          <button
+            class="atlas-filter"
+            type="button"
+            data-atlas-filter={domain.id}
+            aria-pressed="false"
+          >{domain.name}</button>
+        ))}
+      </div>
+    </div>
+
+    <div class="atlas-layout">
+      <div class="atlas-map">
+        <svg viewBox="0 0 1100 700" role="group" aria-label={`Атлас связей: ${nodes.length} концептов и ${edgeCount} связей`}>
+          <g aria-hidden="true">
+            {rings.map((ring) => (
+              <g>
+                <ellipse
+                  class="atlas-zone"
+                  cx={ring.cx}
+                  cy={ring.cy}
+                  rx={ring.rx}
+                  ry={ring.ry}
+                  style={`--domain-color: ${ring.domain.color};`}
+                />
+                <text
+                  class="atlas-zone-label"
+                  x={ring.lx}
+                  y={ring.ly}
+                  style={`--domain-color: ${ring.domain.color};`}
+                >{ring.domain.name}</text>
+              </g>
+            ))}
+          </g>
+
+          <g>
+            {edges.map((edge) => {
+              const a = nodes.find((n) => n.id === edge.a)!;
+              const b = nodes.find((n) => n.id === edge.b)!;
+              return (
+                <line
+                  class="atlas-edge"
+                  data-weight={edge.weight}
+                  data-a={edge.a}
+                  data-b={edge.b}
+                  x1={a.x}
+                  y1={a.y}
+                  x2={b.x}
+                  y2={b.y}
+                />
+              );
+            })}
+          </g>
+
+          <g>
+            {nodes.map((node) => (
+              <g
+                class:list={["atlas-node", node.id === initial.id && "is-active"]}
+                data-id={node.id}
+                style={`--domain-color: ${node.domainColor};`}
+                tabindex="0"
+                role="button"
+                aria-label={`${node.code}: ${node.title}. Открыть карточку в панели`}
+              >
+                <circle cx={node.x} cy={node.y} r={node.r} />
+                <text x={node.x} y={node.y + 3} text-anchor="middle">{node.code}</text>
+                <text
+                  class="atlas-node__label"
+                  x={node.x + node.dx}
+                  y={node.y + node.dy}
+                  text-anchor={node.anchor}
+                >{node.label}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+      </div>
+
+      <aside class="atlas-detail" aria-live="polite">
+        <div class="atlas-detail__card" id="atlas-detail">
+          <p class="atlas-detail__code">{initial.code} · {initial.domainName}</p>
+          <p class="atlas-detail__title">{initial.title}</p>
+          <p class="atlas-detail__desc">{initial.desc}</p>
+          <div class="atlas-detail__domains">
+            {initial.domains.map((domain) => (
+              <span class="dom-pill" style={`--domain-color: ${domain.color};`}>{domain.name}</span>
+            ))}
+          </div>
+          <a class="atlas-detail__link" href={initial.url}>Открыть карточку →</a>
+        </div>
+        <p class="atlas-detail__hint">
+          Наведите или сфокусируйте узел, чтобы подсветить связи. Клик закрепляет карточку.
+          Толщина линии — сила связи по общим темам.
+        </p>
+      </aside>
+    </div>
+
+    <div class="atlas-legend">
+      {DOMAINS.map((domain) => (
+        <span style={`--domain-color: ${domain.color};`}><i></i>{domain.name}</span>
+      ))}
+    </div>
+  </section>
+
+  <script type="application/json" id="atlas-data" set:html={JSON.stringify(atlasData)} />
+  <script>
+    const raw = document.getElementById("atlas-data")?.textContent;
+    const panel = document.querySelector<HTMLElement>(".atlas-panel");
+    const detail = document.getElementById("atlas-detail");
+    const filters = [...document.querySelectorAll<HTMLButtonElement>("[data-atlas-filter]")];
+    const nodes = [...document.querySelectorAll<SVGGElement>(".atlas-node")];
+    const edges = [...document.querySelectorAll<SVGLineElement>(".atlas-edge")];
+
+    if (raw && panel && detail && nodes.length) {
+      const data = JSON.parse(raw) as {
+        nodes: Array<{
+          id: string;
+          code: string;
+          title: string;
+          desc: string;
+          url: string;
+          domain: string;
+          domainName: string;
+          domainColor: string;
+          domains: Array<{ id: string; name: string; color: string }>;
+        }>;
+        edges: Array<{ a: string; b: string; weight: number }>;
+      };
+
+      const byId = new Map(data.nodes.map((node) => [node.id, node]));
+      const neighbours = new Map<string, Set<string>>();
+      for (const node of data.nodes) neighbours.set(node.id, new Set());
+      for (const edge of data.edges) {
+        neighbours.get(edge.a)?.add(edge.b);
+        neighbours.get(edge.b)?.add(edge.a);
+      }
+
+      let pinned: string | null = null;
+      let active: string | null = data.nodes[0]?.id ?? null;
+
+      const escape = (value: string) =>
+        value.replace(/[&<>"']/g, (char) =>
+          ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char] ?? char,
+        );
+
+      function renderDetail(id: string) {
+        const node = byId.get(id);
+        if (!node) return;
+        detail!.innerHTML = `
+          <p class="atlas-detail__code">${escape(node.code)} · ${escape(node.domainName)}</p>
+          <p class="atlas-detail__title">${escape(node.title)}</p>
+          <p class="atlas-detail__desc">${escape(node.desc)}</p>
+          <div class="atlas-detail__domains">${node.domains
+            .map(
+              (domain) =>
+                `<span class="dom-pill" style="--domain-color:${domain.color}">${escape(domain.name)}</span>`,
+            )
+            .join("")}</div>
+          <a class="atlas-detail__link" href="${node.url}">Открыть карточку →</a>
+        `;
+      }
+
+      function paint(id: string | null, sticky = false) {
+        active = id;
+        const near = id ? neighbours.get(id) ?? new Set<string>() : new Set<string>();
+        nodes.forEach((node) => {
+          const nodeId = node.dataset.id ?? "";
+          node.classList.toggle("is-active", nodeId === id);
+          node.classList.toggle("is-muted", Boolean(id) && nodeId !== id && !near.has(nodeId));
+        });
+        edges.forEach((edge) => {
+          const connected = Boolean(id) && (edge.dataset.a === id || edge.dataset.b === id);
+          edge.classList.toggle("is-active", connected);
+          edge.classList.toggle("is-muted", Boolean(id) && !connected);
+        });
+        if (id) renderDetail(id);
+        if (sticky) pinned = id;
+      }
+
+      nodes.forEach((node) => {
+        const id = node.dataset.id ?? "";
+        node.addEventListener("mouseenter", () => {
+          if (!pinned) paint(id);
+        });
+        node.addEventListener("focus", () => {
+          if (!pinned) paint(id);
+        });
+        node.addEventListener("click", () => {
+          if (pinned === id) {
+            pinned = null;
+            paint(id);
+          } else {
+            paint(id, true);
+          }
+        });
+        node.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            pinned = pinned === id ? null : id;
+            paint(id, pinned === id);
+          }
+        });
+      });
+
+      const map = panel.querySelector(".atlas-map");
+      map?.addEventListener("mouseleave", () => {
+        if (!pinned && active) paint(active);
+      });
+
+      filters.forEach((button) => {
+        button.addEventListener("click", () => {
+          const filter = button.dataset.atlasFilter ?? "all";
+          filters.forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+
+          nodes.forEach((node) => {
+            const id = node.dataset.id ?? "";
+            const nodeData = byId.get(id);
+            const visible =
+              filter === "all" || Boolean(nodeData?.domains.some((domain) => domain.id === filter));
+            node.classList.toggle("is-hidden", !visible);
+          });
+
+          const hidden = new Set(
+            nodes.filter((node) => node.classList.contains("is-hidden")).map((node) => node.dataset.id),
+          );
+          edges.forEach((edge) => {
+            const visible = !hidden.has(edge.dataset.a) && !hidden.has(edge.dataset.b);
+            edge.classList.toggle("is-hidden", !visible);
+          });
+
+          if ((pinned && hidden.has(pinned)) || (!pinned && active && hidden.has(active))) {
+            pinned = null;
+            paint(null);
+          }
+        });
+      });
+    }
+  </script>
+)}

@@ -1,0 +1,83 @@
+---
+import { LEVEL_META, TYPE_META } from "../config";
+import {
+  conceptCode,
+  postDomains,
+  postHref,
+  postMinutes,
+  primaryDomain,
+  type Post,
+} from "../lib/utils";
+
+interface Props {
+  post: Post;
+  variant?: "card" | "row";
+  compact?: boolean;
+  index?: number;
+}
+
+const { post, variant = "card", compact = false, index = 0 } = Astro.props;
+const primary = primaryDomain(post);
+const domains = postDomains(post);
+const meta = TYPE_META[post.data.type];
+const href = postHref(post);
+const minutes = postMinutes(post);
+const level = post.data.level ? LEVEL_META[post.data.level] : undefined;
+const isRow = variant === "row";
+---
+
+<article
+  class:list={["concept-card", isRow && "concept-card--row"]}
+  style={`--domain-color: ${primary.color}; --type-color: ${meta.color};`}
+  data-domains={post.data.domains.join(" ")}
+  data-type={post.data.type}
+  data-code={conceptCode(post)}
+  data-index={index}
+>
+  {isRow ? (
+    <>
+      <span class="concept-card__code">{conceptCode(post)}</span>
+      <div class="concept-card__body">
+        <h3 class="concept-card__title"><a href={href}>{post.data.title}</a></h3>
+        {!compact && <p class="concept-card__desc">{post.data.description}</p>}
+        <div class="concept-card__domains">
+          {domains.map((domain) => (
+            <a
+              href={`/domains/${domain.id}`}
+              class="dom-pill"
+              style={`--domain-color: ${domain.color};`}
+            >{domain.name}</a>
+          ))}
+        </div>
+      </div>
+      <span class="concept-card__arrow" aria-hidden="true">→</span>
+    </>
+  ) : (
+    <>
+      <div class="concept-card__top">
+        <span class="concept-card__code">{conceptCode(post)}</span>
+        <span class="concept-card__stamp">{meta.label}</span>
+      </div>
+      <h3 class="concept-card__title"><a href={href}>{post.data.title}</a></h3>
+      {!compact && <p class="concept-card__desc">{post.data.description}</p>}
+      <div class="concept-card__domains">
+        {domains.map((domain) => (
+          <a
+            href={`/domains/${domain.id}`}
+            class="dom-pill"
+            style={`--domain-color: ${domain.color};`}
+          >{domain.name}</a>
+        ))}
+      </div>
+      <div class="concept-card__foot">
+        <span>{minutes}{level && <> · {level.label}</>}</span>
+        {level && (
+          <span class="concept-card__level" aria-label={`Уровень: ${level.label}`}>
+            {[1, 2, 3].map((n) => <i data-on={n <= level.dots ? "true" : undefined}></i>)}
+          </span>
+        )}
+        <span class="concept-card__arrow" aria-hidden="true">→</span>
+      </div>
+    </>
+  )}
+</article>

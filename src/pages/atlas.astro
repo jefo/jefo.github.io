@@ -1,0 +1,64 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import AtlasMap from "../components/AtlasMap.astro";
+import { getCollection } from "astro:content";
+import { DOMAINS } from "../data/hub";
+import { sortedConcepts, tagConnections } from "../lib/utils";
+
+const posts = sortedConcepts(await getCollection("posts", ({ data }) => !data.draft));
+const connectionCount = tagConnections(posts).length;
+---
+
+<BaseLayout
+  title="Атлас"
+  description="Карта связей между концептами картотеки native/: направления, общие темы и соседние карточки."
+>
+  <header class="page-head">
+    <div class="wrap">
+      <p class="page-head__kicker"><b>картотека</b> / атлас</p>
+      <h1 class="page-head__title">Карта<br /><span class="thin">соседей.</span></h1>
+      <p class="page-head__lead">
+        Не иерархия и не оглавление. Атлас показывает, какие концепты делят темы
+        и что читать рядом. Толщина линии — сила связи, цвет узла — направление.
+      </p>
+      <div class="page-head__meta">
+        <span><b>{String(posts.length).padStart(2, "0")}</b> узлов</span>
+        <span><b>{String(DOMAINS.length).padStart(2, "0")}</b> направления</span>
+        <span><b>{connectionCount}</b> связей</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap section">
+    <AtlasMap posts={posts} />
+  </div>
+
+  <div class="wrap section">
+    <div class="concept-grid">
+      <div class="info-card">
+        <p class="info-card__k">01 · как читать</p>
+        <h3 class="info-card__title">Узел — это карточка.</h3>
+        <p class="info-card__text">
+          Цвет — основное направление. В панели справа видны все направления,
+          к которым карточка относится. Клик по узлу закрепляет карточку.
+        </p>
+      </div>
+      <div class="info-card">
+        <p class="info-card__k">02 · связи</p>
+        <h3 class="info-card__title">Линия — общие темы.</h3>
+        <p class="info-card__text">
+          Связь строится по тегам: чем больше общих тем, тем толще линия.
+          Это не «рекомендации алгоритма», а прозрачная структура.
+        </p>
+      </div>
+      <div class="info-card">
+        <p class="info-card__k">03 · навигация</p>
+        <h3 class="info-card__title">Фильтр — направление.</h3>
+        <p class="info-card__text">
+          Оставьте один материал, чтобы увидеть его окрестность. Или откройте
+          каталог, если нужен линейный список.
+        </p>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

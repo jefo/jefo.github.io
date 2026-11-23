@@ -1,52 +1,40 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
-import { allTags, sortByDate, tagColor } from "../../lib/utils";
+import { allTags, plural, sortByDate, tagColor } from "../../lib/utils";
 
 const posts = sortByDate(await getCollection("posts", ({ data }) => !data.draft));
 const tags = allTags(posts);
 ---
 
-<BaseLayout title="Темы" description="Все темы блога: контекст, агенты, MCP, промпты, инструменты и локальные модели.">
+<BaseLayout
+  title="Темы"
+  description="Все темы картотеки native/: контекст, агенты, MCP, промпты, инструменты и локальные модели."
+>
   <header class="page-head">
     <div class="wrap">
-      <h1 class="page-head__title">Темы</h1>
+      <p class="page-head__kicker"><b>картотека</b> / темы</p>
+      <h1 class="page-head__title">Темы<br /><span class="thin">и срезы.</span></h1>
       <p class="page-head__lead">
-        Теги — это срезы, а не рубрики. Один материал может быть про контекст,
-        агентов и стоимость одновременно.
+        Теги — это не рубрики, а срезы. Один концепт может быть про контекст,
+        агентов и стоимость одновременно. Для структуры есть направления,
+        для связей — атлас.
       </p>
+      <div class="page-head__meta">
+        <span><b>{String(tags.length).padStart(2, "0")}</b> {plural(tags.length, ["тема", "темы", "тем"])}</span>
+        <span><b>{String(posts.length).padStart(2, "0")}</b> карточек</span>
+      </div>
     </div>
   </header>
 
   <div class="wrap section">
-    <div class="grid gap-0 border-l border-t border-[var(--line)] sm:grid-cols-2">
+    <div class="tag-grid">
       {tags.map(({ tag, count }) => (
-        <a
-          href={`/tags/${tag}`}
-          class="group relative flex items-baseline justify-between gap-4 border-b border-r border-[var(--line)] bg-[var(--paper)] px-5 py-4 transition-colors hover:bg-[var(--paper-2)]"
-        >
-          <span class="flex items-baseline gap-2.5">
-            <span
-              class="inline-block h-2 w-2 translate-y-[-1px]"
-              style={`background: ${tagColor(tag)};`}
-              aria-hidden="true"
-            ></span>
-            <span class="font-mono text-[15px] text-[var(--ink)]">#{tag}</span>
-          </span>
-          <span class="font-mono text-[10px] tracking-wider text-[var(--muted)]">
-            {String(count).padStart(2, "0")} →
-          </span>
+        <a href={`/tags/${tag}`} class="tag-slip" style={`--tag-color: ${tagColor(tag)};`}>
+          <span class="tag-slip__name">{tag}</span>
+          <span class="tag-slip__count">{String(count).padStart(2, "0")} →</span>
         </a>
       ))}
-      {tags.length % 2 === 1 && (
-        <a
-          href="/start"
-          class="group flex items-baseline justify-between gap-4 border-b border-r border-[var(--line)] bg-[var(--paper-2)] px-5 py-4 transition-colors hover:bg-[var(--paper-3)]"
-        >
-          <span class="font-mono text-[13px] text-[var(--muted)]">не знаете, с чего начать?</span>
-          <span class="font-mono text-[10px] tracking-wider text-[var(--accent-text)]">старт →</span>
-        </a>
-      )}
     </div>
   </div>
 </BaseLayout>

@@ -1,9 +1,11 @@
 ---
 title: "Tool Search в своём агенте: рецепт на 5 минут"
 description: "Что даёт, что понадобится и как подключить tool search + defer_loading в своём агенте: код, проверка и грабли."
+short: "Tool Search: рецепт"
 date: 2026-11-20
 type: recipe
-tags: ["mcp", "tool-search", "context", "api"]
+domains: ["context", "tools"]
+tags: ["mcp", "tool-search", "context", "api", "tools"]
 level: medium
 time: "5 мин"
 tools: ["Anthropic API", "MCP"]

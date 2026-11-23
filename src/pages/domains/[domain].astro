@@ -1,0 +1,128 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ConceptCard from "../../components/ConceptCard.astro";
+import Icon from "../../components/Icon.astro";
+import RouteTicket from "../../components/RouteTicket.astro";
+import SectionHead from "../../components/SectionHead.astro";
+import { DOMAINS, ROUTES } from "../../data/hub";
+import {
+  conceptCode,
+  domainOverlaps,
+  plural,
+  postsInDomain,
+  sortedConcepts,
+  type Post,
+} from "../../lib/utils";
+
+export async function getStaticPaths() {
+  const posts = sortedConcepts(await getCollection("posts", ({ data }) => !data.draft));
+  return DOMAINS.map((domain) => ({
+    params: { domain: domain.id },
+    props: { domain, posts },
+  }));
+}
+
+const { domain, posts: allPosts } = Astro.props as { domain: (typeof DOMAINS)[number]; posts: Post[] };
+const concepts = postsInDomain(allPosts, domain.id);
+const overlaps = domainOverlaps(allPosts, domain.id);
+const scale = `${String(concepts.length).padStart(2, "0")} / ${String(allPosts.length).padStart(2, "0")}`;
+const conceptIds = new Set(concepts.map((post) => post.id));
+const routes = ROUTES.filter((route) => route.steps.some((step) => conceptIds.has(step.post)));
+const texture = `url('/textures/material-${domain.material}.svg')`;
+const materialLabel = {
+  felt: "фетр",
+  steel: "сталь",
+  rubber: "резина",
+  kraft: "крафт",
+}[domain.material];
+---
+
+<BaseLayout
+  title={domain.name}
+  description={`${domain.name} — направление картотеки native/: ${domain.description}`}
+>
+  <header class="domain-head" style={`--domain-color: ${domain.color};`}>
+    <div class="wrap domain-head__grid">
+      <div class="domain-head__material" style={`--plate-texture: ${texture};`} aria-hidden="true">
+        <span class="domain-head__icon"><Icon name={domain.icon} size={24} /></span>
+        <span class="domain-head__index">{domain.index}</span>
+        <span class="domain-head__mat-label">{materialLabel} / направление {domain.index}</span>
+      </div>
+      <div class="domain-head__body">
+        <nav class="crumbs" aria-label="Хлебные крошки">
+          <a href="/catalog">картотека</a><span>/</span><span>направления</span><span>/</span><span aria-current="page">{domain.name}</span>
+        </nav>
+        <p class="page-head__kicker" style="margin-top: 22px;">
+          <b>{String(concepts.length).padStart(2, "0")}</b> концепта · {String(routes.length).padStart(2, "0")} маршрута · {materialLabel}
+        </p>
+        <h1 class="domain-title">{domain.name}</h1>
+        <p class="domain-tagline">{domain.tagline}</p>
+        <p class="domain-desc">{domain.description}</p>
+        <div class="domain-meta">
+          <span>шифры <b>{concepts.map((post) => conceptCode(post)).join(" · ")}</b></span>
+          <span>в картотеке <b>{scale}</b></span>
+          <span>связей с другими направлениями <b>{overlaps.length}</b></span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap domain-body">
+    <section class="domain-section">
+      <SectionHead
+        index="01"
+        kicker="содержание направления"
+        title="Концепты"
+        sub="Порядок не случайный: шифры задают место в картотеке, а не дату публикации."
+        href="/catalog"
+        linkLabel="Каталог"
+      />
+      <div class="concept-grid">
+        {concepts.map((post, index) => <ConceptCard post={post} index={index} />)}
+      </div>
+    </section>
+
+    {overlaps.length > 0 && (
+      <section class="domain-section">
+        <SectionHead
+          index="02"
+          kicker="пересечения"
+          title="Общие концепты"
+          sub="Направления не изолированы: одна карточка может работать на два материала."
+        />
+        <div class="overlap-list">
+          {overlaps.map(({ domain: other, posts: shared }) => (
+            <a
+              href={`/domains/${other.id}`}
+              class="overlap"
+              style={`--domain-color: ${other.color};`}
+            >
+              <span class="overlap__k"><span class="dom-dot" style={`--domain-color: ${other.color};`}></span>{other.name}</span>
+              <span class="overlap__title">{shared.length} {plural(shared.length, ["общий концепт", "общих концепта", "общих концептов"])}</span>
+              <span class="overlap__text">{shared.map((post) => post.data.short ?? post.data.title).join(" · ")}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    {routes.length > 0 && (
+      <section class="domain-section">
+        <SectionHead
+          index="03"
+          kicker="маршруты"
+          title="Пути через направление"
+          sub="Если не хочется выбирать концепты вручную — пройдите маршрут целиком."
+          href="/paths"
+          linkLabel="Все маршруты"
+        />
+        <div class="ticket-grid">
+          {routes.map((route, index) => (
+            <RouteTicket route={route} posts={allPosts} index={index} />
+          ))}
+        </div>
+      </section>
+    )}
+  </div>
+</BaseLayout>
