@@ -7,9 +7,14 @@ const posts = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
+    /** Стабильный идентификатор, не зависит от направления и формата. */
+    uid: z.string().regex(/^AI-\d{3}$/),
     date: z.coerce.date(),
     updated: z.coerce.date().optional(),
-    type: z.enum(["recipe", "guide", "note"]),
+    /** Формат подачи — не тип знания. */
+    format: z.enum(["recipe", "guide", "note"]),
+    /** Тип знания — facet для фильтрации, карточек и атласа. */
+    kind: z.enum(["principle", "pattern", "technique", "workflow", "tool", "architecture"]),
     /** Направления картотеки. Первое — основное, остальные — пересечения. */
     domains: z
       .array(z.enum(["context", "agents", "tools", "practice"]))

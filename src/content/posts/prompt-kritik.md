@@ -2,8 +2,10 @@
 title: "Промпт-паттерн «Критик»: заставить модель спорить с собой"
 description: "Два прохода вместо одного: генератор пишет, критик ищет дыры, редактор чинит. Промпт, который ловит ошибки до того, как их поймает ревьюер."
 short: "Критик"
+uid: "AI-009"
 date: 2026-10-29
-type: recipe
+format: recipe
+kind: "pattern"
 domains: ["practice"]
 tags: ["prompts", "workflow"]
 level: easy

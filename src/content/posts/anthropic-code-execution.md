@@ -2,8 +2,10 @@
 title: "Anthropic Code Execution: краткое руководство"
 description: "Песочница Anthropic: как включить code execution, чем отличается programmatic tool calling, как устроен контейнер, что приходит в ответе и где границы."
 short: "Code Execution"
+uid: "AI-010"
 date: 2026-11-22
-type: guide
+format: guide
+kind: "tool"
 domains: ["tools", "agents"]
 tags: ["anthropic", "code-execution", "tools", "context", "sandbox", "api"]
 level: medium
@@ -382,7 +384,7 @@ Beta-заголовок для текущих версий не нужен. Но
 - **Модели нужно видеть промежуточные данные.** Если решение зависит от каждого сырого ответа, фильтрация в коде лишит её контекста.
 - **Ответы маленькие.** 3 вызова по 200 токенов не создают проблемы, которую стоит решать песочницей.
 - **Нужен недоступный пакет.** У контейнера нет интернета: поставить зависимость на лету нельзя.
-- **Нужна своя среда.** Версия Python, системные библиотеки и сеть не настраиваются. Тогда — [своя песочница на Docker или Workers](/recipes/docker-cloudflare-sandbox).
+- **Нужна своя среда.** Версия Python, системные библиотеки и сеть не настраиваются. Тогда — [своя песочница на Docker или Workers](/concepts/docker-cloudflare-sandbox).
 
 ## Цифры и их границы
 
@@ -407,4 +409,4 @@ Beta-заголовок для текущих версий не нужен. Но
 - [Claude API: Programmatic tool calling](https://platform.claude.com/docs/en/agents-and-tools/tool-use/programmatic-tool-calling)
 - [Anthropic Engineering: Introducing advanced tool use](https://www.anthropic.com/engineering/advanced-tool-use)
 
-Если хочешь сначала понять, почему промежуточные результаты вообще дороги, — [«Контекстное окно — это бюджет, а не склад»](/recipes/context-budget). Если инструментов слишком много ещё до первого вызова — [«Tool Search в своём агенте»](/recipes/tool-search-5-minut).
+Если хочешь сначала понять, почему промежуточные результаты вообще дороги, — [«Контекстное окно — это бюджет, а не склад»](/concepts/context-budget). Если инструментов слишком много ещё до первого вызова — [«Tool Search в своём агенте»](/concepts/tool-search-5-minut).

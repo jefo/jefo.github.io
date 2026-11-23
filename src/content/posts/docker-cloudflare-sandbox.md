@@ -2,8 +2,10 @@
 title: "Docker · Cloudflare Workers: своя песочница для Code Mode"
 description: "Два рабочих рецепта своей code execution: Docker с запретом сети и Cloudflare Dynamic Worker с capability-биндингами. Код, границы и что выбрать."
 short: "Своя песочница"
+uid: "AI-011"
 date: 2026-11-22
-type: recipe
+format: recipe
+kind: "technique"
 domains: ["practice", "tools"]
 tags: ["code-execution", "sandbox", "docker", "cloudflare", "workers", "tools", "security"]
 level: hard
@@ -582,4 +584,4 @@ export class Runner extends DurableObject<Env> {
 - [Cloudflare: Run a Linux command](https://developers.cloudflare.com/sandbox/get-started/)
 - [Docker: `docker run` security options](https://docs.docker.com/engine/containers/run/)
 
-Механику встроенной песочницы Anthropic разбирает [краткое руководство по Code Execution](/guides/anthropic-code-execution). Если пока не решено, нужен ли вообще код вместо обычных вызовов, начни с [«Контекстное окно — это бюджет, а не склад»](/recipes/context-budget).
+Механику встроенной песочницы Anthropic разбирает [краткое руководство по Code Execution](/concepts/anthropic-code-execution). Если пока не решено, нужен ли вообще код вместо обычных вызовов, начни с [«Контекстное окно — это бюджет, а не склад»](/concepts/context-budget).

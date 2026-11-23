@@ -64,7 +64,7 @@ const starter = ["context-budget", "claude-md-recept", "local-llm-16gb"]
     <section class="search-starter" id="search-starter" aria-label="С чего начать поиск">
       <div class="connections__head">
         <h2 class="connections__title">Если не знаете, что искать</h2>
-        <a href="/catalog" class="sec-link">Каталог <span aria-hidden="true">→</span></a>
+        <a href="/" class="sec-link">Каталог <span aria-hidden="true">→</span></a>
       </div>
       <div class="concept-grid">
         {starter.map((post) => <ConceptCard post={post} />)}
@@ -80,8 +80,10 @@ const starter = ["context-budget", "claude-md-recept", "local-llm-16gb"]
     description: string;
     short: string;
     url: string;
-    type: string;
-    code: string;
+    format: string;
+    kind: string;
+    kindLabel: string;
+    uid: string;
     domains: Domain[];
     tags: string[];
     date: string;
@@ -139,6 +141,7 @@ const starter = ["context-budget", "claude-md-recept", "local-llm-16gb"]
     const scored = index
       .map((entry) => {
         const title = entry.title.toLowerCase();
+        const kindLabel = entry.kindLabel.toLowerCase();
         const short = entry.short.toLowerCase();
         const description = entry.description.toLowerCase();
         const tags = entry.tags.join(" ").toLowerCase();
@@ -153,6 +156,7 @@ const starter = ["context-budget", "claude-md-recept", "local-llm-16gb"]
           if (short.includes(term)) hit += 6;
           if (tags.includes(term)) hit += 5;
           if (domains.includes(term)) hit += 4;
+          if (kindLabel.includes(term)) hit += 4;
           if (description.includes(term)) hit += 3;
           if (body.includes(term)) hit += 1;
           if (hit > 0) matchedAll += 1;
@@ -179,8 +183,9 @@ const starter = ["context-budget", "claude-md-recept", "local-llm-16gb"]
           .replace(" г.", "");
         return `<a class="search-hit" href="${entry.url}">
           <span class="search-hit__top">
-            <span class="search-hit__code">${escapeHtml(entry.code)}</span>
-            <span>${escapeHtml(entry.type)}</span>
+            <span class="search-hit__code">${escapeHtml(entry.uid)}</span>
+            <span>${escapeHtml(entry.kindLabel)}</span>
+            <span>${escapeHtml(entry.format)}</span>
             <span>·</span>
             <span>${date}</span>
             <span>·</span>

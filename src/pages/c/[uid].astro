@@ -1,0 +1,28 @@
+---
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("posts", ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { uid: post.data.uid },
+    props: { href: `/concepts/${post.id}`, title: post.data.title, uid: post.data.uid },
+  }));
+}
+
+const { href, title, uid } = Astro.props as { href: string; title: string; uid: string };
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, follow" />
+    <meta http-equiv="refresh" content={`0; url=${href}`} />
+    <link rel="canonical" href={href} />
+    <title>{uid} · {title} — native/</title>
+  </head>
+  <body>
+    <p><a href={href}>{uid} · {title} →</a></p>
+  </body>
+</html>

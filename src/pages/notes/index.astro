@@ -26,7 +26,7 @@ const filters = [
       <p class="page-head__lead">
         Хронология — не главный вход в картотеку. Но иногда нужно вспомнить,
         что вышло в ноябре. Для смысловых связей есть <a href="/atlas">атлас</a>
-        и <a href="/catalog">каталог</a>.
+        и <a href="/">каталог</a>.
       </p>
       <div class="page-head__meta">
         <span><b>{String(posts.length).padStart(2, "0")}</b> карточек</span>
@@ -84,7 +84,7 @@ const filters = [
 
     let visible = 0;
     cards.forEach((card) => {
-      const show = filter === "all" || card.dataset.type === filter;
+      const show = filter === "all" || card.dataset.format === filter;
       card.hidden = !show;
       if (show) visible += 1;
     });

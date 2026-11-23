@@ -65,6 +65,12 @@ const jsonLd = {
         <h1 class="route-title">{route.title}</h1>
         <p class="route-subtitle">{route.subtitle}</p>
         <p class="route-desc">{route.description}</p>
+        <dl class="route-goal">
+          <dt>цель</dt>
+          <dd>{route.goal}</dd>
+          <dt>результат</dt>
+          <dd>{route.result}</dd>
+        </dl>
         <div class="route-head__actions">
           {first && (
             <a href={postHref(first)} class="btn btn--primary">Начать маршрут <span aria-hidden="true">→</span></a>

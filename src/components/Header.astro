@@ -1,9 +1,6 @@
 ---
-import { NAV, SITE } from "../config";
+import { SITE } from "../config";
 import Icon from "./Icon.astro";
-
-const path = Astro.url.pathname;
-const isActive = (href: string) => path === href || path.startsWith(href + "/");
 ---
 
 <header class="site-header">
@@ -13,18 +10,6 @@ const isActive = (href: string) => path === href || path.startsWith(href + "/");
         <span class="brand__name">{SITE.mark}</span><span class="brand__slash" aria-hidden="true">/</span><span class="brand__led" aria-hidden="true"></span>
       </span>
     </a>
-
-    <nav class="nav nav--desktop" aria-label="Основная навигация">
-      {NAV.map((item) => (
-        <a
-          href={item.href}
-          class="nav__link"
-          aria-current={isActive(item.href) ? "page" : undefined}
-        >
-          {item.label}
-        </a>
-      ))}
-    </nav>
 
     <div class="header-tools">
       <a href="/search" class="search-slot" aria-label="Поиск по картотеке" title="Поиск (/)">
@@ -46,30 +31,17 @@ const isActive = (href: string) => path === href || path.startsWith(href + "/");
         <span class="theme-switch__icon theme-switch__icon--moon"><Icon name="moon" size={13} /></span>
       </button>
       <button
-        id="menu-toggle"
-        class="icon-btn mobile-toggle"
+        id="sidebar-toggle"
+        class="icon-btn sidebar-toggle"
         type="button"
-        aria-label="Открыть меню"
+        aria-label="Открыть разделы"
         aria-expanded="false"
-        aria-controls="mobile-nav"
+        aria-controls="sidebar"
       >
         <span class="menu-icon menu-icon--open"><Icon name="menu" size={20} /></span>
         <span class="menu-icon menu-icon--close"><Icon name="close" size={20} /></span>
       </button>
     </div>
-  </div>
-
-  <div class="mobile-nav" id="mobile-nav" data-open="false">
-    {NAV.map((item) => (
-      <a href={item.href} aria-current={isActive(item.href) ? "page" : undefined}>
-        {item.label}
-        <span>{item.note}</span>
-      </a>
-    ))}
-    <a href="/search">
-      Поиск
-      <span>по заголовкам и тексту</span>
-    </a>
   </div>
 </header>
 
@@ -96,27 +68,34 @@ const isActive = (href: string) => path === href || path.startsWith(href + "/");
     }
   });
 
-  const menuBtn = document.getElementById("menu-toggle");
-  const mobileNav = document.getElementById("mobile-nav");
+  const sidebarBtn = document.getElementById("sidebar-toggle");
+  const sidebar = document.getElementById("sidebar");
+  const backdrop = document.getElementById("sidebar-backdrop");
 
-  function setMenu(open: boolean) {
-    if (!menuBtn || !mobileNav) return;
-    mobileNav.dataset.open = String(open);
-    menuBtn.setAttribute("aria-expanded", String(open));
-    menuBtn.setAttribute("aria-label", open ? "Закрыть меню" : "Открыть меню");
-    document.documentElement.style.overflow = open ? "hidden" : "";
+  function setSidebar(open: boolean) {
+    document.body.dataset.navOpen = String(open);
+    sidebarBtn?.setAttribute("aria-expanded", String(open));
+    sidebarBtn?.setAttribute("aria-label", open ? "Закрыть разделы" : "Открыть разделы");
+    if (backdrop) backdrop.hidden = !open;
+    if (window.innerWidth <= 1000) {
+      document.documentElement.style.overflow = open ? "hidden" : "";
+    }
   }
 
-  menuBtn?.addEventListener("click", () => {
-    setMenu(mobileNav?.dataset.open !== "true");
+  sidebarBtn?.addEventListener("click", () => {
+    setSidebar(document.body.dataset.navOpen !== "true");
   });
-  mobileNav?.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setMenu(false)));
-
+  backdrop?.addEventListener("click", () => setSidebar(false));
+  sidebar?.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      if (window.innerWidth <= 1000) setSidebar(false);
+    });
+  });
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && mobileNav?.dataset.open === "true") {
-      setMenu(false);
-      menuBtn?.focus();
-    }
+    if (event.key === "Escape" && document.body.dataset.navOpen === "true") setSidebar(false);
+  });
+  window.matchMedia("(min-width: 1001px)").addEventListener("change", (event) => {
+    if (event.matches) setSidebar(false);
   });
 
   // «/» и Cmd/Ctrl+K — быстрый переход к поиску

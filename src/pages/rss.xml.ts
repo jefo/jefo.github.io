@@ -16,7 +16,7 @@ export async function GET(context: APIContext) {
       description: post.data.description,
       pubDate: post.data.date,
       link: postHref(post),
-      categories: [...post.data.domains, ...post.data.tags],
+      categories: [post.data.kind, ...post.data.domains, ...post.data.tags],
       author: SITE.author,
     })),
     customData: `<language>ru-ru</language>`,

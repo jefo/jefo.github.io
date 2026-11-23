@@ -80,8 +80,8 @@ export const DOMAIN_BY_ID = Object.fromEntries(DOMAINS.map((d) => [d.id, d])) as
 >;
 
 export interface RouteStep {
-  /** id поста без расширения. */
-  post: string;
+  /** Стабильный ID концепта. */
+  conceptId: string;
   note: string;
 }
 
@@ -91,6 +91,10 @@ export interface Route {
   title: string;
   subtitle: string;
   description: string;
+  /** Компетенция, которую получает читатель. */
+  goal: string;
+  /** Что человек умеет после маршрута. */
+  result: string;
   audience: string;
   domain: DomainId;
   outcomes: string[];
@@ -105,6 +109,9 @@ export const ROUTES: Route[] = [
     subtitle: "Собрать рабочий процесс с агентом",
     description:
       "Пять карточек от «сделай фичу» до предсказуемого процесса: контракт проекта, бюджет контекста, спека, свой инструмент и гигиена сессий.",
+    goal: "Собрать предсказуемый рабочий процесс с агентом.",
+    result:
+      "У вас есть контракт проекта, бюджет контекста, спека, один рабочий MCP-инструмент и протокол перезапуска сессии.",
     audience: "Если вы только начинаете работать с агентом",
     domain: "practice",
     outcomes: [
@@ -116,23 +123,23 @@ export const ROUTES: Route[] = [
     ],
     steps: [
       {
-        post: "claude-md-recept",
+        conceptId: "AI-005",
         note: "Начните с контракта: команды, границы, definition of done.",
       },
       {
-        post: "context-budget",
+        conceptId: "AI-001",
         note: "Разложите окно по статьям, прежде чем добавлять код.",
       },
       {
-        post: "spec-driven",
+        conceptId: "AI-006",
         note: "Закройте зазор между «что сказал» и «что имел в виду».",
       },
       {
-        post: "mcp-server-20-minut",
+        conceptId: "AI-007",
         note: "Подключите один инструмент, который экономит время каждый день.",
       },
       {
-        post: "agent-40-shagov",
+        conceptId: "AI-002",
         note: "Научитесь замечать context rot до того, как он станет дорогим.",
       },
     ],
@@ -144,6 +151,9 @@ export const ROUTES: Route[] = [
     subtitle: "Перестать тонуть в окне",
     description:
       "Четыре карточки о том, что съедает внимание модели и как вернуть контекст под контроль: бюджет, деградация, tool search и подключение.",
+    goal: "Научиться управлять контекстом AI-агента.",
+    result:
+      "Вы умеете проектировать контекстное окружение, не перегружая модель нерелевантной информацией.",
     audience: "Если агент «поглупел» на длинной сессии",
     domain: "context",
     outcomes: [
@@ -154,19 +164,19 @@ export const ROUTES: Route[] = [
     ],
     steps: [
       {
-        post: "context-budget",
+        conceptId: "AI-001",
         note: "Пять правил упаковки и раскладка бюджета по статьям.",
       },
       {
-        post: "agent-40-shagov",
+        conceptId: "AI-002",
         note: "Почему история растёт, а результат — нет.",
       },
       {
-        post: "tool-search-mcp",
+        conceptId: "AI-003",
         note: "Как 55K токенов схем превращаются в 0,5K.",
       },
       {
-        post: "tool-search-5-minut",
+        conceptId: "AI-004",
         note: "Подключение и проверка на реальной задаче.",
       },
     ],
@@ -178,6 +188,9 @@ export const ROUTES: Route[] = [
     subtitle: "MCP за вечер",
     description:
       "От пустого репозитория до сервера, который модель находит сама. Три карточки: собрать, объяснить, подключить динамическую загрузку.",
+    goal: "Собрать свой MCP-инструмент и сделать его находимым для модели.",
+    result:
+      "У вас есть работающий сервер, проверенный в Inspector, и динамическая загрузка инструментов в клиенте.",
     audience: "Если агенту не хватает вашего контекста",
     domain: "tools",
     outcomes: [
@@ -188,35 +201,20 @@ export const ROUTES: Route[] = [
     ],
     steps: [
       {
-        post: "mcp-server-20-minut",
+        conceptId: "AI-007",
         note: "Минимальный сервер, три типичные ошибки и чек-лист.",
       },
       {
-        post: "tool-search-mcp",
+        conceptId: "AI-003",
         note: "Почему описания инструментов стоят дороже, чем кажется.",
       },
       {
-        post: "tool-search-5-minut",
+        conceptId: "AI-004",
         note: "Подключите поисковик и оставьте 3–5 частых ручек.",
       },
     ],
   },
 ];
-
-/** Шифры фиксированы: на них ссылаются карточки, атлас и словарь. */
-export const CONCEPT_CODES: Record<string, string> = {
-  "context-budget": "K-01",
-  "agent-40-shagov": "K-02",
-  "tool-search-mcp": "K-03",
-  "tool-search-5-minut": "K-04",
-  "claude-md-recept": "A-01",
-  "spec-driven": "A-02",
-  "mcp-server-20-minut": "A-03",
-  "local-llm-16gb": "T-01",
-  "anthropic-code-execution": "T-02",
-  "prompt-kritik": "P-01",
-  "docker-cloudflare-sandbox": "P-02",
-};
 
 /** Короткие подписи для атласа — чтобы узлы читались без заголовков. */
 export const ATLAS_LABELS: Record<string, string> = {

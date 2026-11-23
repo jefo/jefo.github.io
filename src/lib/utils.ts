@@ -1,5 +1,5 @@
 import type { CollectionEntry } from "astro:content";
-import { CONCEPT_CODES, DOMAINS, DOMAIN_BY_ID, ROUTES, type Domain, type DomainId } from "../data/hub";
+import { DOMAINS, DOMAIN_BY_ID, ROUTES, type Domain, type DomainId } from "../data/hub";
 
 export type Post = CollectionEntry<"posts">;
 
@@ -35,9 +35,7 @@ export function readingTime(body = ""): number {
 }
 
 export function postHref(post: Post): string {
-  const plural =
-    post.data.type === "recipe" ? "recipes" : post.data.type === "guide" ? "guides" : "notes";
-  return `/${plural}/${post.id.replace(/\.(md|mdx)$/, "")}`;
+  return `/concepts/${post.id.replace(/\.(md|mdx)$/, "")}`;
 }
 
 export function postMinutes(post: Post): string {
@@ -54,7 +52,7 @@ export function sortByDate(posts: Post[]): Post[] {
 }
 
 export function conceptCode(post: Post): string {
-  return CONCEPT_CODES[post.id] ?? "X-00";
+  return post.data.uid;
 }
 
 export function conceptSort(a: Post, b: Post): number {
@@ -144,15 +142,15 @@ export function conceptNeighbours(post: Post, all: Post[]) {
   };
 }
 
-export function routesForPost(postId: string) {
-  return ROUTES.filter((route) => route.steps.some((step) => step.post === postId));
+export function routesForPost(postUid: string) {
+  return ROUTES.filter((route) => route.steps.some((step) => step.conceptId === postUid));
 }
 
 export function routeDuration(routeId: string, all: Post[]): number {
   const route = ROUTES.find((r) => r.slug === routeId);
   if (!route) return 0;
   return route.steps.reduce((sum, step) => {
-    const post = all.find((p) => p.id === step.post);
+    const post = all.find((p) => p.data.uid === step.conceptId);
     return sum + (post ? parseMinutes(postMinutes(post)) : 0);
   }, 0);
 }
@@ -162,7 +160,7 @@ export function routePosts(routeId: string, all: Post[]) {
   if (!route) return [];
   return route.steps
     .map((step) => {
-      const post = all.find((p) => p.id === step.post);
+      const post = all.find((p) => p.data.uid === step.conceptId);
       return post ? { post, note: step.note } : undefined;
     })
     .filter((entry): entry is { post: Post; note: string } => Boolean(entry));

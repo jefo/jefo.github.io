@@ -13,7 +13,7 @@ const domain = DOMAIN_BY_ID[route.domain];
 const minutes = routeDuration(route.slug, posts);
 const stops = route.steps.map((step) => ({
   ...step,
-  post: posts.find((post) => post.id === step.post),
+  post: posts.find((post) => post.data.uid === step.conceptId),
 }));
 const visibleStops = stops.slice(0, 3);
 const rest = stops.length - visibleStops.length;
@@ -37,7 +37,7 @@ const rest = stops.length - visibleStops.length;
       {visibleStops.map((step, i) => (
         <li>
           <span>{String(i + 1).padStart(2, "0")}</span>
-          {step.post?.data.short ?? step.post?.data.title ?? step.post}
+          {step.post?.data.short ?? step.post?.data.title ?? step.conceptId}
         </li>
       ))}
       {rest > 0 && <li class="ticket__more">+{rest} {plural(rest, ["остановка", "остановки", "остановок"])}</li>}

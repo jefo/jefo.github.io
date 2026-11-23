@@ -1,0 +1,157 @@
+---
+import { getCollection } from "astro:content";
+import ConceptCard from "./ConceptCard.astro";
+import { KIND_META } from "../config";
+import { DOMAINS } from "../data/hub";
+import { domainCounts, plural, sortedConcepts, tagConnections } from "../lib/utils";
+
+const posts = sortedConcepts(await getCollection("posts", ({ data }) => !data.draft));
+const domainTotals = domainCounts(posts);
+const kindTotals = posts.reduce(
+  (acc, post) => ({ ...acc, [post.data.kind]: (acc[post.data.kind] ?? 0) + 1 }),
+  {} as Record<string, number>,
+);
+const connectionCount = tagConnections(posts).length;
+const kinds = Object.entries(KIND_META) as [keyof typeof KIND_META, (typeof KIND_META)[keyof typeof KIND_META]][];
+---
+
+<div class="catalog-view">
+  <div class="wrap">
+    <header class="catalog-head">
+      <p class="catalog-head__kicker"><b>картотека</b> / индекс</p>
+      <h1>Картотека.<br /><span class="thin">Не лента.</span></h1>
+      <p>
+        Концепты, направления и типы знания. Выберите карточку или откройте
+        направление в сайдбаре. Один концепт может лежать на пересечении.
+      </p>
+      <div class="catalog-head__meta">
+        <span><b>{String(posts.length).padStart(2, "0")}</b> концептов</span>
+        <span><b>{String(DOMAINS.length).padStart(2, "0")}</b> направления</span>
+        <span><b>{String(kinds.length).padStart(2, "0")}</b> типов</span>
+        <span><b>{connectionCount}</b> связей</span>
+        <a href="/start" class="sec-link">Как читать →</a>
+      </div>
+    </header>
+
+    <div class="catalog-toolbar" role="group" aria-label="Фильтры каталога">
+      <div class="catalog-filter" role="group" aria-label="Направление">
+        <span class="catalog-filter__k">направление</span>
+        <button class="filter-chip" type="button" data-filter-domain="all" aria-pressed="true">все</button>
+        {DOMAINS.map((domain) => (
+          <button class="filter-chip" type="button" data-filter-domain={domain.id} aria-pressed="false">
+            <span class="filter-chip__dot" style={`--domain-color: ${domain.color};`}></span>
+            {domain.name}
+            <span style="color: var(--faint);">{domainTotals[domain.id]}</span>
+          </button>
+        ))}
+      </div>
+
+      <div class="catalog-filter" role="group" aria-label="Тип знания">
+        <span class="catalog-filter__k">тип</span>
+        <button class="filter-chip" type="button" data-filter-kind="all" aria-pressed="true">все</button>
+        {kinds.map(([id, meta]) => (
+          <button class="filter-chip" type="button" data-filter-kind={id} aria-pressed="false">
+            <span class="filter-chip__kind" style={`--kind-color: ${meta.color};`}></span>
+            {meta.label}
+            <span style="color: var(--faint);">{kindTotals[id] ?? 0}</span>
+          </button>
+        ))}
+      </div>
+
+      <div class="catalog-toolbar__tail">
+        <span><b id="catalog-count">{String(posts.length).padStart(2, "0")}</b> <span id="catalog-count-label">{plural(posts.length, ["концепт", "концепта", "концептов"])}</span></span>
+        <button class="catalog-toolbar__reset" type="button" id="catalog-reset">Сбросить</button>
+      </div>
+    </div>
+
+    <div class="concept-grid catalog-grid" id="catalog-grid">
+      {posts.map((post, index) => <ConceptCard post={post} index={index} />)}
+    </div>
+
+    <p class="catalog-empty" id="catalog-empty" hidden>
+      Под этот фильтр пока нет карточек. Попробуйте другое направление или тип.
+    </p>
+  </div>
+</div>
+
+<script>
+  const cards = [...document.querySelectorAll<HTMLElement>("#catalog-grid .concept-card")];
+  const domainButtons = [...document.querySelectorAll<HTMLButtonElement>("[data-filter-domain]")];
+  const kindButtons = [...document.querySelectorAll<HTMLButtonElement>("[data-filter-kind]")];
+  const countEl = document.getElementById("catalog-count");
+  const countLabel = document.getElementById("catalog-count-label");
+  const empty = document.getElementById("catalog-empty");
+  const reset = document.getElementById("catalog-reset");
+
+  function plural(n: number, forms: [string, string, string]) {
+    const mod10 = n % 10;
+    const mod100 = n % 100;
+    if (mod10 === 1 && mod100 !== 11) return forms[0];
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return forms[1];
+    return forms[2];
+  }
+
+  let domain = "all";
+  let kind = "all";
+
+  function apply(updateUrl = true) {
+    let visible = 0;
+    cards.forEach((card) => {
+      const domains = (card.dataset.domains ?? "").split(" ");
+      const show =
+        (domain === "all" || domains.includes(domain)) &&
+        (kind === "all" || card.dataset.kind === kind);
+      card.hidden = !show;
+      if (show) visible += 1;
+    });
+
+    domainButtons.forEach((button) =>
+      button.setAttribute("aria-pressed", String(button.dataset.filterDomain === domain)),
+    );
+    kindButtons.forEach((button) =>
+      button.setAttribute("aria-pressed", String(button.dataset.filterKind === kind)),
+    );
+
+    if (countEl) countEl.textContent = String(visible).padStart(2, "0");
+    if (countLabel) countLabel.textContent = plural(visible, ["концепт", "концепта", "концептов"]);
+    if (empty) empty.hidden = visible > 0;
+
+    if (updateUrl) {
+      const url = new URL(location.href);
+      if (domain === "all") url.searchParams.delete("domain");
+      else url.searchParams.set("domain", domain);
+      if (kind === "all") url.searchParams.delete("kind");
+      else url.searchParams.set("kind", kind);
+      history.replaceState(null, "", url);
+    }
+  }
+
+  domainButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      domain = button.dataset.filterDomain ?? "all";
+      apply();
+    });
+  });
+  kindButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      kind = button.dataset.filterKind ?? "all";
+      apply();
+    });
+  });
+  reset?.addEventListener("click", () => {
+    domain = "all";
+    kind = "all";
+    apply();
+  });
+
+  const params = new URLSearchParams(location.search);
+  const initialDomain = params.get("domain");
+  const initialKind = params.get("kind");
+  if (initialDomain && domainButtons.some((button) => button.dataset.filterDomain === initialDomain)) {
+    domain = initialDomain;
+  }
+  if (initialKind && kindButtons.some((button) => button.dataset.filterKind === initialKind)) {
+    kind = initialKind;
+  }
+  apply(false);
+</script>

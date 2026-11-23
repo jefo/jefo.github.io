@@ -2,8 +2,10 @@
 title: "Заголовок материала"
 description: "Одно предложение: какую проблему решает и что читатель получит."
 short: "Шаблон"
+uid: "AI-000"
 date: 2026-01-01
-type: recipe
+format: recipe
+kind: "principle"
 domains: ["context"]
 tags: ["context", "agents"]
 level: easy

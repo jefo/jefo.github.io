@@ -49,7 +49,7 @@ const firstRoute = ROUTES[0];
             и прогрессом в браузере.
           </p>
         </a>
-        <a href="/catalog" class="way-card">
+        <a href="/" class="way-card">
           <span class="way-card__icon"><Icon name="grid" size={18} /></span>
           <h2 class="way-card__title">По направлению</h2>
           <p class="way-card__text">
@@ -71,12 +71,16 @@ const firstRoute = ROUTES[0];
         <h2 class="start-section__title">Легенда карточки</h2>
         <div class="legend">
           <div class="legend__item">
-            <span class="legend__mark">K-01</span>
-            <span class="legend__text"><strong>Шифр.</strong> Буква — направление, номер — место в картотеке.</span>
+            <span class="legend__mark">AI-001</span>
+            <span class="legend__text"><strong>ID.</strong> Стабильный идентификатор. Не меняется при переезде между направлениями.</span>
           </div>
           <div class="legend__item">
             <span class="legend__mark">●</span>
             <span class="legend__text"><strong>Направление.</strong> Цвет и подпись показывают, к каким материалам относится концепт.</span>
+          </div>
+          <div class="legend__item">
+            <span class="legend__mark">ПРИНЦИП</span>
+            <span class="legend__text"><strong>Тип знания.</strong> Принцип, паттерн, техника, процесс, инструмент или архитектура. Не формат.</span>
           </div>
           <div class="legend__item">
             <span class="legend__mark">РЕЦЕПТ</span>
@@ -132,7 +136,7 @@ const firstRoute = ROUTES[0];
         </ul>
       </div>
 
-      <a href="/catalog" class="home-start" style="padding: 18px;">
+      <a href="/" class="home-start" style="padding: 18px;">
         <p class="kicker kicker--accent">каталог</p>
         <h3 class="home-start__title" style="font-size: 30px;">Все карточки<br />в одном месте.</h3>
         <span class="home-start__go" style="margin-top: 18px;">Открыть каталог <span aria-hidden="true">→</span></span>

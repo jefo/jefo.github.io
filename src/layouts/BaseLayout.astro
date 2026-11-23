@@ -1,8 +1,10 @@
 ---
 import "../styles/global.css";
 import "../styles/tactile.css";
+import "../styles/shell.css";
 import BaseHead from "../components/BaseHead.astro";
 import Header from "../components/Header.astro";
+import Sidebar from "../components/Sidebar.astro";
 import Footer from "../components/Footer.astro";
 import { SITE } from "../config";
 
@@ -49,12 +51,18 @@ const siteJsonLd = jsonLd ?? {
       jsonLd={siteJsonLd}
     />
   </head>
-  <body class={bodyClass}>
+  <body class={bodyClass} data-nav-open="false">
     <a class="skip-link" href="#content">К содержимому</a>
     <Header />
-    <main id="content">
-      <slot />
-    </main>
-    <Footer />
+    <div class="app-shell">
+      <Sidebar />
+      <div class="app-content">
+        <main id="content" class="app-main">
+          <slot />
+        </main>
+        <Footer />
+      </div>
+    </div>
+    <div class="sidebar-backdrop" id="sidebar-backdrop" hidden></div>
   </body>
 </html>

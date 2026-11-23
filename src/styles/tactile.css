@@ -1728,9 +1728,9 @@ hr {
 }
 .concept-card__stamp {
   padding: 2px 6px 1px;
-  border: 1px solid color-mix(in oklab, var(--type-color, var(--muted)) 60%, var(--line));
+  border: 1px solid color-mix(in oklab, var(--kind-color, var(--muted)) 60%, var(--line));
   border-radius: 3px;
-  color: var(--type-color, var(--muted));
+  color: var(--kind-color, var(--muted));
   font-family: var(--font-mono);
   font-size: 8px;
   font-weight: 600;
@@ -2140,15 +2140,15 @@ hr {
   cursor: pointer;
   outline: none;
 }
-.atlas-node circle {
+.atlas-node .node-shape {
   fill: var(--domain-color);
   stroke: oklch(0.96 0.01 95 / 0.9);
   stroke-width: 2;
-  transition: r 0.2s var(--ease), stroke 0.2s var(--ease), opacity 0.2s var(--ease);
+  transition: stroke 0.2s var(--ease), opacity 0.2s var(--ease);
 }
-.atlas-node:hover circle,
-.atlas-node:focus-visible circle,
-.atlas-node.is-active circle {
+.atlas-node:hover .node-shape,
+.atlas-node:focus-visible .node-shape,
+.atlas-node.is-active .node-shape {
   stroke: oklch(0.9 0.19 130);
   stroke-width: 3;
 }
@@ -2264,6 +2264,32 @@ hr {
   height: 6px;
   border-radius: 50%;
   background: var(--domain-color);
+}
+.atlas-legend--kinds {
+  border-top-color: oklch(1 0 0 / 0.06);
+  color: oklch(0.68 0.01 95);
+}
+.atlas-legend--kinds i {
+  background: oklch(0.86 0.02 100);
+  border-radius: 0;
+}
+.atlas-legend--kinds .kind-principle {
+  border-radius: 50%;
+}
+.atlas-legend--kinds .kind-pattern {
+  border-radius: 1px;
+}
+.atlas-legend--kinds .kind-technique {
+  transform: rotate(45deg);
+}
+.atlas-legend--kinds .kind-workflow {
+  clip-path: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+}
+.atlas-legend--kinds .kind-tool {
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.atlas-legend--kinds .kind-architecture {
+  border-radius: 3px;
 }
 
 .atlas-mini {

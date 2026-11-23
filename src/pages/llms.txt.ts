@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
-import { SITE } from "../config";
+import { KIND_META, SITE } from "../config";
 import { DOMAINS, GLOSSARY, ROUTES, glossarySlug } from "../data/hub";
 import {
   conceptCode,
@@ -35,18 +35,18 @@ export const GET: APIRoute = async () => {
     "",
     ...posts.map((post) => {
       const domains = postDomains(post).map((domain) => domain.name).join(", ");
-      return `- [${conceptCode(post)} — ${post.data.short ?? post.data.title}](${SITE.url}${postHref(post)}) — ${domains}. ${post.data.description}`;
+      return `- [${conceptCode(post)} — ${post.data.short ?? post.data.title}](${SITE.url}${postHref(post)}) — ${KIND_META[post.data.kind].label}; ${domains}. ${post.data.description}`;
     }),
     "",
     "## Маршруты",
     "",
     ...ROUTES.map((route) => {
       const stops = route.steps
-        .map((step) => posts.find((post) => post.id === step.post))
+        .map((step) => posts.find((post) => post.data.uid === step.conceptId))
         .filter((post) => Boolean(post))
         .map((post) => `${conceptCode(post!)} ${post!.data.short ?? post!.data.title}`)
         .join(" → ");
-      return `- [${route.code} — ${route.title}](${SITE.url}/paths/${route.slug}) — ${route.subtitle}. ${stops}`;
+      return `- [${route.code} — ${route.title}](${SITE.url}/paths/${route.slug}) — ${route.goal} ${route.subtitle}. ${stops}`;
     }),
     "",
     "## Атлас и словарь",
@@ -63,7 +63,7 @@ export const GET: APIRoute = async () => {
     "",
     "## Служебное",
     "",
-    `- [Каталог](${SITE.url}/catalog)`,
+    `- [Каталог](${SITE.url}/)`,
     `- [Старт](${SITE.url}/start)`,
     `- [О картотеке](${SITE.url}/about)`,
     `- [Поиск](${SITE.url}/search)`,

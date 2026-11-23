@@ -27,8 +27,8 @@ const { domain, posts: allPosts } = Astro.props as { domain: (typeof DOMAINS)[nu
 const concepts = postsInDomain(allPosts, domain.id);
 const overlaps = domainOverlaps(allPosts, domain.id);
 const scale = `${String(concepts.length).padStart(2, "0")} / ${String(allPosts.length).padStart(2, "0")}`;
-const conceptIds = new Set(concepts.map((post) => post.id));
-const routes = ROUTES.filter((route) => route.steps.some((step) => conceptIds.has(step.post)));
+const conceptIds = new Set(concepts.map((post) => post.data.uid));
+const routes = ROUTES.filter((route) => route.steps.some((step) => conceptIds.has(step.conceptId)));
 const texture = `url('/textures/material-${domain.material}.svg')`;
 const materialLabel = {
   felt: "фетр",
@@ -51,7 +51,7 @@ const materialLabel = {
       </div>
       <div class="domain-head__body">
         <nav class="crumbs" aria-label="Хлебные крошки">
-          <a href="/catalog">картотека</a><span>/</span><span>направления</span><span>/</span><span aria-current="page">{domain.name}</span>
+          <a href="/">картотека</a><span>/</span><span>направления</span><span>/</span><span aria-current="page">{domain.name}</span>
         </nav>
         <p class="page-head__kicker" style="margin-top: 22px;">
           <b>{String(concepts.length).padStart(2, "0")}</b> концепта · {String(routes.length).padStart(2, "0")} маршрута · {materialLabel}
@@ -74,8 +74,8 @@ const materialLabel = {
         index="01"
         kicker="содержание направления"
         title="Концепты"
-        sub="Порядок не случайный: шифры задают место в картотеке, а не дату публикации."
-        href="/catalog"
+        sub="Здесь все концепты направления, включая пересечения. В дереве концепт закреплён за основным направлением."
+        href="/"
         linkLabel="Каталог"
       />
       <div class="concept-grid">

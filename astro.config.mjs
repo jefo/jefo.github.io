@@ -4,7 +4,19 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   site: "https://jefo.github.io",
-  integrations: [sitemap({ filter: (page) => !page.includes("/labs") })],
+  integrations: [
+    sitemap({
+      filter: (page) => {
+        const path = new URL(page).pathname;
+        return (
+          !path.startsWith("/labs") &&
+          !path.startsWith("/c/") &&
+          !["/catalog", "/catalog/"].includes(path) &&
+          !/^\/(recipes|guides|notes)\/[^/]+\/?$/.test(path)
+        );
+      },
+    }),
+  ],
   vite: {
     plugins: [tailwindcss()],
   },

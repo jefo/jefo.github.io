@@ -2,9 +2,11 @@
 title: "Spec-driven: сначала спека, потом код — и агент перестаёт угадывать"
 description: "Почему «сделай фичу» — плохая задача для агента, как выглядит рабочая спека на одну страницу и где она экономит часы, а где создаёт бюрократию."
 short: "Spec-driven"
+uid: "AI-006"
 date: 2026-10-16
-type: guide
-domains: ["agents", "practice"]
+format: guide
+kind: "workflow"
+domains: ["practice", "agents"]
 tags: ["workflow", "spec", "agents"]
 level: medium
 time: "12 мин"

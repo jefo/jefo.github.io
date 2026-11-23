@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
-import { TYPE_META } from "../config";
+import { FORMAT_META, KIND_META } from "../config";
 import {
   conceptCode,
   postDomains,
@@ -17,8 +17,10 @@ export const GET: APIRoute = async () => {
     description: post.data.description,
     short: post.data.short ?? post.data.title,
     url: postHref(post),
-    type: TYPE_META[post.data.type].label,
-    code: conceptCode(post),
+    uid: conceptCode(post),
+    format: FORMAT_META[post.data.format].label,
+    kind: post.data.kind,
+    kindLabel: KIND_META[post.data.kind].label,
     domains: postDomains(post).map((domain) => ({
       id: domain.id,
       name: domain.name,

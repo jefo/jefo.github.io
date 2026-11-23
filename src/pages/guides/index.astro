@@ -5,7 +5,7 @@ import { getCollection } from "astro:content";
 import { plural, sortedConcepts } from "../../lib/utils";
 
 const posts = sortedConcepts(
-  await getCollection("posts", ({ data }) => !data.draft && data.type === "guide"),
+  await getCollection("posts", ({ data }) => !data.draft && data.format === "guide"),
 );
 ---
 

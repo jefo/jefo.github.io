@@ -1,0 +1,111 @@
+---
+import { getCollection } from "astro:content";
+import { DOMAINS, ROUTES } from "../data/hub";
+import { postHref, sortedConcepts } from "../lib/utils";
+
+const posts = sortedConcepts(await getCollection("posts", ({ data }) => !data.draft));
+const path = Astro.url.pathname.replace(/\/+$/, "") || "/";
+const activePost = posts.find((post) => path === postHref(post));
+const activeDomainId = activePost
+  ? activePost.data.domains[0]
+  : DOMAINS.find(
+      (domain) => path === `/domains/${domain.id}` || path.startsWith(`/domains/${domain.id}/`),
+    )?.id;
+
+const isActive = (href: string) => path === href || path.startsWith(href + "/");
+const indexPage = path === "/" || path === "/catalog";
+---
+
+<aside class="sidebar" id="sidebar" aria-label="Разделы картотеки">
+  <div class="sidebar__head">
+    <p class="sidebar__kicker">Картотека</p>
+    <span class="sidebar__count">{String(posts.length).padStart(2, "0")}</span>
+  </div>
+
+  <nav class="side-nav" aria-label="Навигация по картотеке">
+    <section class="side-group">
+      <p class="side-label">Каталог</p>
+      <a
+        href="/"
+        class:list={["side-link", (path === "/" || path === "/catalog") && "is-active"]}
+        aria-current={path === "/" || path === "/catalog" ? "page" : undefined}
+      >
+        <span>Все концепты</span>
+        <span class="side-link__count">{posts.length}</span>
+      </a>
+
+      {DOMAINS.map((domain) => {
+        const concepts = posts.filter((post) => post.data.domains[0] === domain.id);
+        const active = activeDomainId === domain.id;
+        return (
+          <details class="side-branch" open={active || indexPage}>
+            <summary class="side-branch__summary">
+              <span class="side-dot" style={`--domain-color: ${domain.color};`} aria-hidden="true"></span>
+              <span class="side-branch__name">{domain.name}</span>
+            </summary>
+            <ul class="side-branch__list">
+              {concepts.map((post) => {
+                const href = postHref(post);
+                const current = path === href;
+                return (
+                  <li>
+                    <a
+                      href={href}
+                      class:list={["side-concept", current && "is-active"]}
+                      aria-current={current ? "page" : undefined}
+                      title={`${post.data.uid} · ${post.data.short ?? post.data.title}`}
+                    >
+                      <code>{post.data.uid}</code>
+                      <span>{post.data.short ?? post.data.title}</span>
+                    </a>
+                  </li>
+                );
+              })}
+              <li>
+                <a class="side-domain-link" href={`/domains/${domain.id}`}>
+                  Страница направления →
+                </a>
+              </li>
+            </ul>
+          </details>
+        );
+      })}
+    </section>
+
+    <section class="side-group">
+      <p class="side-label">Маршруты</p>
+      {ROUTES.map((route) => (
+        <a
+          href={`/paths/${route.slug}`}
+          class:list={["side-link", isActive(`/paths/${route.slug}`) && "is-active"]}
+          aria-current={path === `/paths/${route.slug}` ? "page" : undefined}
+        >
+          <code class="side-link__code">{route.code}</code>
+          <span>{route.title}</span>
+        </a>
+      ))}
+    </section>
+
+    <section class="side-group">
+      <p class="side-label">Ещё</p>
+      <a href="/atlas" class:list={["side-link", isActive("/atlas") && "is-active"]} aria-current={path === "/atlas" ? "page" : undefined}>
+        <span>Атлас</span>
+      </a>
+      <a href="/glossary" class:list={["side-link", isActive("/glossary") && "is-active"]} aria-current={path === "/glossary" ? "page" : undefined}>
+        <span>Словарь</span>
+      </a>
+      <a href="/start" class:list={["side-link", isActive("/start") && "is-active"]} aria-current={path === "/start" ? "page" : undefined}>
+        <span>Старт</span>
+      </a>
+      <a href="/about" class:list={["side-link", isActive("/about") && "is-active"]} aria-current={path === "/about" ? "page" : undefined}>
+        <span>О картотеке</span>
+      </a>
+    </section>
+  </nav>
+
+  <div class="sidebar__foot">
+    <a href="/search">Поиск</a>
+    <a href="/rss.xml">RSS</a>
+  </div>
+</aside>
+

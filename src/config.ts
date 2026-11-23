@@ -25,14 +25,14 @@ export const SITE = {
 };
 
 export const NAV = [
-  { href: "/catalog", label: "Каталог", note: "все концепты картотеки" },
+  { href: "/", label: "Каталог", note: "все концепты картотеки" },
   { href: "/paths", label: "Маршруты", note: "куда идти и в каком порядке" },
   { href: "/atlas", label: "Атлас", note: "карта связей между концептами" },
   { href: "/glossary", label: "Словарь", note: "термины и короткие определения" },
   { href: "/start", label: "Старт", note: "как пользоваться картотекой" },
 ];
 
-export const TYPE_META = {
+export const FORMAT_META = {
   recipe: {
     label: "Рецепт",
     pluralLabel: "рецепты",
@@ -56,7 +56,19 @@ export const TYPE_META = {
   },
 } as const;
 
-export type PostType = keyof typeof TYPE_META;
+export type PostFormat = keyof typeof FORMAT_META;
+
+/** Тип знания — не формат и не ветка дерева. */
+export const KIND_META = {
+  principle: { label: "Принцип", plural: "принципы", color: "var(--tok-key)" },
+  pattern: { label: "Паттерн", plural: "паттерны", color: "var(--tok-str)" },
+  technique: { label: "Техника", plural: "техники", color: "var(--tok-fn)" },
+  workflow: { label: "Процесс", plural: "процессы", color: "var(--tok-num)" },
+  tool: { label: "Инструмент", plural: "инструменты", color: "var(--dom-tools)" },
+  architecture: { label: "Архитектура", plural: "архитектуры", color: "var(--tok-var)" },
+} as const;
+
+export type ConceptKind = keyof typeof KIND_META;
 
 export const LEVEL_META = {
   easy: { label: "легко", dots: 1 },

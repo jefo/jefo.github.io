@@ -4,22 +4,15 @@ import Icon from "./Icon.astro";
 
 const year = new Date().getFullYear();
 
-const sections = [
-  { href: "/catalog", label: "Каталог концептов" },
-  { href: "/paths", label: "Маршруты" },
-  { href: "/atlas", label: "Атлас связей" },
-  { href: "/glossary", label: "Словарь" },
-];
-
 const formats = [
   { href: "/recipes", label: "Рецепты" },
   { href: "/guides", label: "Гайды" },
-  { href: "/notes", label: "Архив" },
+  { href: "/notes", label: "Заметки" },
   { href: "/tags", label: "Темы" },
 ];
 
 const more = [
-  { href: "/start", label: "Как пользоваться" },
+  { href: "/start", label: "Старт" },
   { href: "/about", label: "О картотеке" },
   { href: "/search", label: "Поиск" },
   { href: "/rss.xml", label: "RSS" },
@@ -29,74 +22,57 @@ const socials = [
   { href: SITE.socials.youtube, label: "YouTube", icon: "youtube" as const },
   { href: SITE.socials.telegram, label: "Telegram", icon: "telegram" as const },
   { href: SITE.socials.github, label: "GitHub", icon: "github" as const },
-].filter((s) => !isPlaceholderLink(s.href));
+].filter((social) => !isPlaceholderLink(social.href));
 ---
 
 <footer class="footer">
   <div class="footer__strip" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-  <div class="wrap">
-    <div class="footer__top">
-      <div class="footer__brand">
-        <a href="/" class="brand" aria-label="На главную">
-          <span class="brand__plate">
-            <span class="brand__name">{SITE.mark}</span><span class="brand__slash" aria-hidden="true">/</span><span class="brand__led" aria-hidden="true"></span>
-          </span>
-        </a>
-        <p class="footer__note">
-          Картотека знаний об инженерии ПО с ИИ. Концепты, связи и маршруты вместо ленты.
-          Миссия — {SITE.mission}.
-        </p>
-        <div class="footer__socials">
-          {socials.map((s) => (
-            <a
-              href={s.href}
-              class="icon-btn"
-              aria-label={s.label}
-              title={s.label}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Icon name={s.icon} size={17} />
-            </a>
-          ))}
-          <a href="/rss.xml" class="icon-btn" aria-label="RSS" title="RSS">
-            <Icon name="rss" size={16} />
+  <div class="wrap footer__slim">
+    <div class="footer__brand">
+      <a href="/" class="brand" aria-label="На главную">
+        <span class="brand__plate">
+          <span class="brand__name">{SITE.mark}</span><span class="brand__slash" aria-hidden="true">/</span><span class="brand__led" aria-hidden="true"></span>
+        </span>
+      </a>
+      <p class="footer__note">
+        Картотека знаний об инженерии ПО с ИИ. Концепты, связи и маршруты
+        вместо ленты. Миссия — {SITE.mission}.
+      </p>
+      <div class="footer__socials">
+        {socials.map((social) => (
+          <a
+            href={social.href}
+            class="icon-btn"
+            aria-label={social.label}
+            title={social.label}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Icon name={social.icon} size={17} />
           </a>
-        </div>
+        ))}
       </div>
-
-      <nav class="footer__col" aria-label="Картотека">
-        <h2 class="footer__k">Картотека</h2>
-        <ul>
-          {sections.map((item) => (
-            <li><a href={item.href} class="footer__link">{item.label}</a></li>
-          ))}
-        </ul>
-      </nav>
-
-      <nav class="footer__col" aria-label="Форматы">
-        <h2 class="footer__k">Форматы</h2>
-        <ul>
-          {formats.map((item) => (
-            <li><a href={item.href} class="footer__link">{item.label}</a></li>
-          ))}
-        </ul>
-      </nav>
-
-      <nav class="footer__col" aria-label="Ещё">
-        <h2 class="footer__k">Ещё</h2>
-        <ul>
-          {more.map((item) => (
-            <li><a href={item.href} class="footer__link">{item.label}</a></li>
-          ))}
-        </ul>
-      </nav>
     </div>
 
-    <div class="footer__bottom">
-      <p>© {year} native/</p>
-      <p>Картотека, не лента. Собрано вручную.</p>
-      <a href="#content" class="footer__up">Наверх ↑</a>
+    <div class="footer__groups">
+      <nav aria-label="Форматы">
+        <p class="footer__k">Форматы</p>
+        <div class="footer__inline">
+          {formats.map((item) => <a href={item.href} class="footer__link">{item.label}</a>)}
+        </div>
+      </nav>
+      <nav aria-label="Ещё">
+        <p class="footer__k">Ещё</p>
+        <div class="footer__inline">
+          {more.map((item) => <a href={item.href} class="footer__link">{item.label}</a>)}
+        </div>
+      </nav>
     </div>
+  </div>
+
+  <div class="wrap footer__bottom">
+    <p>© {year} native/</p>
+    <p>Картотека, не лента. Собрано вручную.</p>
+    <a href="#content" class="footer__up">Наверх ↑</a>
   </div>
 </footer>

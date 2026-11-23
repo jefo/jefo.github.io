@@ -2,9 +2,11 @@
 title: "Tool Search в своём агенте: рецепт на 5 минут"
 description: "Что даёт, что понадобится и как подключить tool search + defer_loading в своём агенте: код, проверка и грабли."
 short: "Tool Search: рецепт"
+uid: "AI-004"
 date: 2026-11-20
-type: recipe
-domains: ["context", "tools"]
+format: recipe
+kind: "technique"
+domains: ["tools", "context"]
 tags: ["mcp", "tool-search", "context", "api", "tools"]
 level: medium
 time: "5 мин"
@@ -111,4 +113,4 @@ API нужно знать о каждом инструменте, чтобы и�
 - **Claude Code.** Tool Search уже включён по умолчанию; поведением управляет `ENABLE_TOOL_SEARCH` (`true`, `auto`, `auto:N`, `false`).
 - **Cursor.** Динамическая подгрузка схем встроена, отдельный флаг не нужен.
 
-Полный разбор механизма, лимитов и нейминга — в [гайде для разработчика](/guides/tool-search-mcp).
+Полный разбор механизма, лимитов и нейминга — в [гайде для разработчика](/concepts/tool-search-mcp).

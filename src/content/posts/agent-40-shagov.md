@@ -2,8 +2,10 @@
 title: "Почему агент ломается на 40-м шаге"
 description: "Деградация контекста выглядит как «модель поглупела». На самом деле вы просто дали ей слишком длинную историю с слишком маленьким количеством смысла."
 short: "40-й шаг"
+uid: "AI-002"
 date: 2026-09-10
-type: note
+format: note
+kind: "principle"
 domains: ["context", "agents"]
 tags: ["agents", "context", "debugging"]
 level: medium

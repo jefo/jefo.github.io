@@ -1,5 +1,5 @@
 ---
-import { LEVEL_META, TYPE_META } from "../config";
+import { FORMAT_META, KIND_META, LEVEL_META } from "../config";
 import {
   conceptCode,
   postDomains,
@@ -19,7 +19,8 @@ interface Props {
 const { post, variant = "card", compact = false, index = 0 } = Astro.props;
 const primary = primaryDomain(post);
 const domains = postDomains(post);
-const meta = TYPE_META[post.data.type];
+const format = FORMAT_META[post.data.format];
+const kind = KIND_META[post.data.kind];
 const href = postHref(post);
 const minutes = postMinutes(post);
 const level = post.data.level ? LEVEL_META[post.data.level] : undefined;
@@ -28,9 +29,10 @@ const isRow = variant === "row";
 
 <article
   class:list={["concept-card", isRow && "concept-card--row"]}
-  style={`--domain-color: ${primary.color}; --type-color: ${meta.color};`}
+  style={`--domain-color: ${primary.color}; --kind-color: ${kind.color};`}
   data-domains={post.data.domains.join(" ")}
-  data-type={post.data.type}
+  data-kind={post.data.kind}
+  data-format={post.data.format}
   data-code={conceptCode(post)}
   data-index={index}
 >
@@ -56,7 +58,7 @@ const isRow = variant === "row";
     <>
       <div class="concept-card__top">
         <span class="concept-card__code">{conceptCode(post)}</span>
-        <span class="concept-card__stamp">{meta.label}</span>
+        <span class="concept-card__stamp">{kind.label}</span>
       </div>
       <h3 class="concept-card__title"><a href={href}>{post.data.title}</a></h3>
       {!compact && <p class="concept-card__desc">{post.data.description}</p>}
@@ -70,7 +72,7 @@ const isRow = variant === "row";
         ))}
       </div>
       <div class="concept-card__foot">
-        <span>{minutes}{level && <> · {level.label}</>}</span>
+        <span>{format.label.toLowerCase()} · {minutes}{level && <> · {level.label}</>}</span>
         {level && (
           <span class="concept-card__level" aria-label={`Уровень: ${level.label}`}>
             {[1, 2, 3].map((n) => <i data-on={n <= level.dots ? "true" : undefined}></i>)}

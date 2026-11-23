@@ -2,8 +2,10 @@
 title: "Локальная модель на 16 ГБ: что реально работает, а что нет"
 description: "Что реально тянет ноутбук с 16 ГБ: задачи, скорость, память и границы."
 short: "Локальная модель"
+uid: "AI-008"
 date: 2026-08-22
-type: note
+format: note
+kind: "tool"
 domains: ["tools"]
 tags: ["local-llm", "tools", "hardware"]
 level: medium

@@ -59,14 +59,14 @@
   </g>
 
   <g font-family="'DejaVu Sans', sans-serif" fill="#44443b">
-    <text x="74" y="406" font-size="22">Девять концептов, четыре направления.</text>
+    <text x="74" y="406" font-size="22">11 концептов, 4 направления.</text>
     <text x="74" y="438" font-size="22">Связи, маршруты и атлас вместо ленты.</text>
   </g>
 
   <g font-family="'DejaVu Sans Mono', monospace" fill="#6b6a5f" font-size="13" letter-spacing="1.5">
-    <text x="74" y="510">09 КОНЦЕПТОВ</text>
+    <text x="74" y="510">11 КОНЦЕПТОВ</text>
     <text x="238" y="510">04 НАПРАВЛЕНИЯ</text>
-    <text x="432" y="510">25 СВЯЗЕЙ</text>
+    <text x="432" y="510">37 СВЯЗЕЙ</text>
     <text x="566" y="510">03 МАРШРУТА</text>
   </g>
 

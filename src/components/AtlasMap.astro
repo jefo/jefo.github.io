@@ -1,4 +1,5 @@
 ---
+import { KIND_META } from "../config";
 import { ATLAS_LABELS, ATLAS_POSITIONS, DOMAINS, DOMAIN_BY_ID } from "../data/hub";
 import {
   conceptCode,
@@ -27,6 +28,8 @@ const labelPos: Record<string, { dx: number; dy: number; anchor: "start" | "midd
   "mcp-server-20-minut": { dx: 0, dy: -20, anchor: "middle" },
   "local-llm-16gb": { dx: 0, dy: 30, anchor: "middle" },
   "prompt-kritik": { dx: 0, dy: 31, anchor: "middle" },
+  "anthropic-code-execution": { dx: 0, dy: -20, anchor: "middle" },
+  "docker-cloudflare-sandbox": { dx: 0, dy: 31, anchor: "middle" },
 };
 
 const edges = tagConnections(posts).map((edge) => ({
@@ -48,6 +51,9 @@ const nodes = posts.map((post) => {
   return {
     id: post.id,
     code: conceptCode(post),
+    shortCode: conceptCode(post).replace("AI-", ""),
+    kind: post.data.kind,
+    kindLabel: KIND_META[post.data.kind].label,
     label: post.data.short ?? ATLAS_LABELS[post.id] ?? post.data.title,
     title: post.data.title,
     desc: post.data.description,
@@ -68,6 +74,18 @@ const nodes = posts.map((post) => {
     r: 12 + Math.min(8, degree.get(post.id) ?? 0),
   };
 });
+
+const polygonPoints = (
+  x: number,
+  y: number,
+  radius: number,
+  sides: number,
+  rotation = -Math.PI / 2,
+) =>
+  Array.from({ length: sides }, (_, index) => {
+    const angle = rotation + (index * Math.PI * 2) / sides;
+    return `${x + radius * Math.cos(angle)},${y + radius * Math.sin(angle)}`;
+  }).join(" ");
 
 const rings = [
   { id: "context", cx: 255, cy: 265, rx: 215, ry: 225, lx: 78, ly: 76 },
@@ -121,7 +139,7 @@ const edgeCount = edges.length;
                   font-size="8"
                   font-weight="600"
                   fill="oklch(0.98 0.01 95)"
-                >{node.code}</text>
+                >{node.shortCode}</text>
               </g>
             ))}
           </g>
@@ -213,8 +231,33 @@ const edgeCount = edges.length;
                 role="button"
                 aria-label={`${node.code}: ${node.title}. Открыть карточку в панели`}
               >
-                <circle cx={node.x} cy={node.y} r={node.r} />
-                <text x={node.x} y={node.y + 3} text-anchor="middle">{node.code}</text>
+                {node.kind === "principle" && (
+                  <circle class="node-shape" cx={node.x} cy={node.y} r={node.r} />
+                )}
+                {node.kind === "pattern" && (
+                  <rect class="node-shape" x={node.x - node.r} y={node.y - node.r} width={node.r * 2} height={node.r * 2} rx={3} />
+                )}
+                {node.kind === "technique" && (
+                  <rect
+                    class="node-shape"
+                    x={node.x - node.r}
+                    y={node.y - node.r}
+                    width={node.r * 2}
+                    height={node.r * 2}
+                    rx={2}
+                    transform={`rotate(45 ${node.x} ${node.y})`}
+                  />
+                )}
+                {node.kind === "workflow" && (
+                  <polygon class="node-shape" points={polygonPoints(node.x, node.y, node.r + 1, 6)} />
+                )}
+                {node.kind === "tool" && (
+                  <polygon class="node-shape" points={polygonPoints(node.x, node.y + 2, node.r + 1, 3)} />
+                )}
+                {node.kind === "architecture" && (
+                  <rect class="node-shape" x={node.x - node.r} y={node.y - node.r} width={node.r * 2} height={node.r * 2} rx={6} />
+                )}
+                <text x={node.x} y={node.y + 3} text-anchor="middle">{node.shortCode}</text>
                 <text
                   class="atlas-node__label"
                   x={node.x + node.dx}
@@ -229,7 +272,7 @@ const edgeCount = edges.length;
 
       <aside class="atlas-detail" aria-live="polite">
         <div class="atlas-detail__card" id="atlas-detail">
-          <p class="atlas-detail__code">{initial.code} · {initial.domainName}</p>
+          <p class="atlas-detail__code">{initial.code} · {initial.kindLabel} · {initial.domainName}</p>
           <p class="atlas-detail__title">{initial.title}</p>
           <p class="atlas-detail__desc">{initial.desc}</p>
           <div class="atlas-detail__domains">
@@ -249,6 +292,11 @@ const edgeCount = edges.length;
     <div class="atlas-legend">
       {DOMAINS.map((domain) => (
         <span style={`--domain-color: ${domain.color};`}><i></i>{domain.name}</span>
+      ))}
+    </div>
+    <div class="atlas-legend atlas-legend--kinds">
+      {(Object.entries(KIND_META) as [keyof typeof KIND_META, (typeof KIND_META)[keyof typeof KIND_META]][]).map(([id, meta]) => (
+        <span><i class={`kind-${id}`}></i>{meta.label}</span>
       ))}
     </div>
   </section>
@@ -273,6 +321,7 @@ const edgeCount = edges.length;
           domain: string;
           domainName: string;
           domainColor: string;
+          kindLabel: string;
           domains: Array<{ id: string; name: string; color: string }>;
         }>;
         edges: Array<{ a: string; b: string; weight: number }>;
@@ -298,7 +347,7 @@ const edgeCount = edges.length;
         const node = byId.get(id);
         if (!node) return;
         detail!.innerHTML = `
-          <p class="atlas-detail__code">${escape(node.code)} · ${escape(node.domainName)}</p>
+          <p class="atlas-detail__code">${escape(node.code)} · ${escape(node.kindLabel)} · ${escape(node.domainName)}</p>
           <p class="atlas-detail__title">${escape(node.title)}</p>
           <p class="atlas-detail__desc">${escape(node.desc)}</p>
           <div class="atlas-detail__domains">${node.domains

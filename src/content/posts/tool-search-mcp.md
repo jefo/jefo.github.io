@@ -2,9 +2,11 @@
 title: "MCP Tool Search для разработчика"
 description: "Как работает динамическая загрузка инструментов: 55K → 0,5K токенов, Claude Code, Cursor, defer_loading, regex и BM25, лимиты, нейминг и грабли."
 short: "Tool Search: гайд"
+uid: "AI-003"
 date: 2026-11-20
 updated: 2026-11-20
-type: guide
+format: guide
+kind: "architecture"
 domains: ["context", "tools"]
 tags: ["mcp", "tool-search", "context", "api", "cursor", "claude-code", "tools"]
 level: medium
@@ -12,7 +14,7 @@ time: "14 мин"
 tools: ["Claude Code", "Cursor", "Anthropic API", "MCP"]
 ---
 
-Если нужна только инструкция «включить и проверить» — она в [рецепте на пять минут](/recipes/tool-search-5-minut). Здесь — как механизм устроен, где проходит граница экономии и почему поиск иногда не находит нужную ручку.
+Если нужна только инструкция «включить и проверить» — она в [рецепте на пять минут](/concepts/tool-search-5-minut). Здесь — как механизм устроен, где проходит граница экономии и почему поиск иногда не находит нужную ручку.
 
 ## Коротко
 
@@ -154,7 +156,7 @@ do_action — v2 helper tool
 
 **Поиск не находит инструмент.** Смотри имя, описание, аргументы и лимит выдачи. Иногда помогает BM25 вместо regex.
 
-**Ответ инструмента всё равно огромный.** Tool Search экономит схемы, но не ответы. Лог на 40K токенов после успешного поиска всё ещё займёт контекст. Это следующая задача — [изоляция и сжатие результатов](/guides/anthropic-code-execution).
+**Ответ инструмента всё равно огромный.** Tool Search экономит схемы, но не ответы. Лог на 40K токенов после успешного поиска всё ещё займёт контекст. Это следующая задача — [изоляция и сжатие результатов](/concepts/anthropic-code-execution).
 
 **Кэш.** Отложенные определения не входят в начальный промпт, поэтому системный промпт и основные инструменты могут оставаться кэшируемыми. Но не ставь `cache_control` на отложенный тулсет: его содержимое не входит в кэшируемый префикс.
 
@@ -170,7 +172,7 @@ do_action — v2 helper tool
 
 ## Готовые клиенты
 
-- **Claude Code.** Tool Search уже включён по умолчанию; поведением управляет `ENABLE_TOOL_SEARCH` (`true`, `auto`, `auto:N`, `false`). Короткая инструкция — в [рецепте](/recipes/tool-search-5-minut).
+- **Claude Code.** Tool Search уже включён по умолчанию; поведением управляет `ENABLE_TOOL_SEARCH` (`true`, `auto`, `auto:N`, `false`). Короткая инструкция — в [рецепте](/concepts/tool-search-5-minut).
 - **Cursor.** Динамическая подгрузка схем встроена; отдельный флаг не нужен.
 
 ## Частые вопросы
@@ -193,4 +195,4 @@ do_action — v2 helper tool
 - [Claude Code: Scale to many tools with tool search](https://code.claude.com/docs/en/agent-sdk/tool-search)
 - [Claude API: Tool search tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool)
 
-Если хочешь сначала разобраться с бюджетом контекста — [«Контекстное окно — это бюджет, а не склад»](/recipes/context-budget). Если ещё не поднимал свой MCP-сервер — [«MCP-сервер за 20 минут»](/guides/mcp-server-20-minut).
+Если хочешь сначала разобраться с бюджетом контекста — [«Контекстное окно — это бюджет, а не склад»](/concepts/context-budget). Если ещё не поднимал свой MCP-сервер — [«MCP-сервер за 20 минут»](/concepts/mcp-server-20-minut).
